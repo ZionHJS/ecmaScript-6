@@ -131,3 +131,18 @@ function sum(num, total = 0){
     }
 }
 console.log('sum(1000):', sum(1000));
+
+function Timer() {
+    this.s1 = 0;
+    this.s2 = 0;
+    // 箭头函数
+    setInterval(() => this.s1++, 1000);
+    // 普通函数
+    setInterval(function () {
+      this.s2++;
+    }, 1000);
+    console.log(this);
+  }
+  Timer();
+  
+  var timer = new Timer();
