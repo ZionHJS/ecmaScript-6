@@ -129,9 +129,74 @@ for(let k in person){
     console.log(k);
 }
 
+// divide
+let person = {};
+person.age = 10;
+
+console.log(Object.getOwnPropertyDescriptor(person, 'age'));
+
+console.log('person:', person);
+
+Object.defineProperties(person, {
+    name:{
+        configurable: true,
+        enumerable:true,
+        value:'google.com',
+        writable:true
+    },
+    phone:{
+        configurable:false,
+        enumerable:false,
+        writable:false,
+        value:'123123123'
+    },
+    address:{
+        get:function(){
+            return 'Beijing Newyork Shanghai'
+        },
+        set:function(){
+            return ''
+        }
+    }
+});
+
+console.log('Object.getOwnpropertyDescriptors')
+
+//属性的可枚举性
+let p = {age:19, name:'google.com'};
+Object.prototype.prop = 'father prop';
+for(let k in p){
+    console.log('k:', k);
+}
+
+let m = {age:19};
+Object.defineProperty(m, {
+    demo:{
+        enumerable:false,
+        value:'12123'
+    }
+});
+console.log('m.demo:', m.demo);
+console.log('Object.keys(m):', Object.keys(m));
+console.log('object.:', object.getOwnPropertyNames(m));
+
+//11.Object.setPrototypeOf()设置原型对象的方法 Object.create()
+let p = {};
+let p = Object.create({age:18});
+console.log(p.age);
+Object.setPrototypeOf(p, {name:'sss'});
+console.log('p.age:', p.age);
+console.log('p.name', p.name);
+
+//12.Object.getPrototypeOf
 
 
+//14.将运算符引入了对象
+let{a, ...b} = {a:123, b:3344, c:'ccdd'};
+console.log(a);
+console.log(b);
 
+let k = {age:19};
+let k2 = {name:'google.com'};
 
-
-
+let k3 = {...k, ...k3};
