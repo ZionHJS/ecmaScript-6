@@ -62,7 +62,61 @@ let ws = new WeakSet();
 let a = {a:'2222'};
 let b = {b:'3333'};
 ws.add(a); ws.add(b);
-console.log('ws:',ws);
+console.log('ws:', ws);
 ws.delete(a);
 console.log(ws.has(b));
-console.log('ws:',ws);
+console.log('ws:', ws);
+
+
+//map
+//8. map 数据结构 它类似于对象 也是键值对的集合 但是"键"的范围不受限于字符串 各种类型的值(包括对象)都可以当作键
+let map = new Map();
+let a = {a:123};
+let b = new Number(20000);
+
+map.set(a,{age:19});
+map.set(b,198);
+console.log('map:', map);
+map.set('1234',b);
+console.log('map:', map);
+
+//构建Map对象 使用new关键字 可以传入可遍历的对象即可
+let map = new Map([[{a:19},2222],[2, 'abcd, goole.com']]);
+console.log('map:', map);
+
+//9. Map的属性和操作方法
+let map = new Map([[{a:19},2222],[2, 'abcd, goole.com']]);
+//size属性返回Map结构成员的总数
+console.log('map.size:', map.size);
+
+//set(keu, value) 设置值 set方法设置键名key对应的键值为value,然后返回整个map结构.如果key已经有值 则键值会更新 否则就新生成该键值
+//set 方法返回的是当前的Map对象，因此可以采用链式写法
+map.set(1,'google.com').set({demo:"google"}, 'hamkd.com');
+console.log('map:', map);
+
+//get(key) get方法读取key对应的键值
+console.log('map.get(1):', map.get(1));
+
+//delte(key), delete方法删除某个键 返回true
+
+//forEach()
+//entries()
+let map = new Map([[1,1],[2,'google.com'], [{a:333}, 'str']]);
+console.log('map.keys():', map.keys());
+
+for(let key of map.keys()){
+    console.log('map.get(key):', map.get(key));
+}
+
+console.log('map.values():', map.values());
+console.log('map.entries():', map.entries());
+
+map.forEach((item, key) => {
+    console.log('item:', item);
+    console.log('key:', key);
+});
+
+//WeakMap 只接收对象作为键名 不接收其他类型的值作为键名
+//size 遍历方法 clear等都不可以用
+let wm = new Map();
+wm.set(dom, {age:19});
