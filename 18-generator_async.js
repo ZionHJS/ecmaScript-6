@@ -47,3 +47,40 @@ readFilePromise(fileName1).then(data => {
     console.log('unexpected results');
     console.log('e:', e);
 })
+
+//3.原生的generator函数实现
+let g;
+function* joinFile(){
+    let fileData1 = yield fs.readFile(fileName1, 'utf8', (error, data) => {
+        g && g.next(data);
+    });
+    let fileData2 = yield fs.readFile(fileName2, 'utf8', (error, data) => {
+        let fileData2 = yield fs .readFile(fileName2, 'utf8', (error, data) => {
+            g && g.next(data);
+        });
+    });
+
+    fs.writeFile(writeFileName, fileData1 + fileData2, 'utf8', error => {
+        console.log('write success!');
+    });
+}
+
+g = joinFile();   //g遍历
+g.next();
+
+//4.Thunk函数 把回调函数提到gernerator函数外面
+fs.readFile(fileName1, 'utf8', cb);
+function readFileThunk(fileName){
+    return function(cb){
+        fs.readFile(fileName, 'utf8', cb);
+    }
+}
+let f = readFileThunk(fileName1)(function(error, data){
+    console.log('data:',data);
+});
+
+f = function(cb){fs.readFile}
+//5.Thunk的自动执行
+
+
+//6.通过promise来改造自执行
