@@ -49,12 +49,69 @@ p1.then(data => {
 });
 let p2 = new Promise((resolve, reject) => {
     console.log('p2 initialized');
-    resolve(p1);
+    resolve(p1);   //如果resolve传入的是一个promise 那么必须等待Promise执行完成后 then完之后 才能改变当前Promise的状态
 });
 p2.then(data => {
     console.log('p2:then');
     console.log('data:', data);
 });
+
+
+//6.then方法返回一个新的promise 所以可以进行可链式编程
+let p1 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(100);  
+    }, 2000);
+});
+
+p1.then(data => {
+    return 10;
+}).then(data =>{
+    console.log('data:', data);
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(3);
+        }, 2000)
+    });
+}).then(data => {
+    console.log('data:', data);
+}).catch(er => console.log(er))
+.finally(() => {
+    console.log('sss');   //无论如何都会执行的代码
+})
+
+//7.then前一个回调函数 有可能返回的还是一个Promise对象 这时后一个回调函数 就会等待该Promise对象的状态发生变化 才会被调用 
+
+
+//9.finally 方法用于指定不管Promise对象最后的状态如何 都会执行操作 ES2018引入标准
+
+//10.Promise.all 用于多个Promise实例 包装陈个一个新的Promise实例
+//所有的子Promise全部为Resolved状态 则它就是Resolved 其中一个Rejevted那么就直接Rejected
+//then的参数是 所有子Promise的结果的组成的数组
+
+Promise.all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(), Promise.reject(new Error('our fault!'))])
+.then(data => console.log(data))
+.catch(error => console.log(error));
+
+//11.Promise.race方法同样是将多个Promise实例 包装成一个新的Promise实例
+Promise.race([new Promise(resolve => {
+    setTimeout(() => {
+        resolve(1);
+    },1000)
+}), Promise.resolve(2), Promise.reject(3)]).then(data => console.log(data)).catch(e => console.log(e));
+
+//12.Promise.resolve(),现有对象转为Promise对象
+//[1]参数是一个Promise实例
+//[2]参数是一个thenable对象，具有then方法的对象，然后就立即执行
+Promise.resolve({
+    then(resolve, reject){
+        resolve(32);
+    }
+}).then(data => console.log(32));
+Promise.resolve('ssss');
+
+//13.Promise.reject()
+
 
 
 
