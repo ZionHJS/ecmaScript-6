@@ -64,7 +64,75 @@ function* G1() {
     yield 1;
     yield 2;
     yield 3;
+    //return 4;  //return时 next方法{value:4, done:true} 为ture时立即结束
+    yield 4;
 }
 for(let k of G1()){
     console.log('k:', k);
+}
+
+//7.Generator.prototype.throw()
+function* G1(){
+    try{
+        yield 1;
+        yield 2;
+        yield 3;
+        return 4;
+    }catch(e){
+        console.log('e:',e);
+    }
+}
+let k = G1();
+console.log(k.next());
+console.log(k.next());
+k.throw(new Error('our unexpected information'));
+console.log(k.next());
+console.log(k.next());
+
+//8.Generator.prototype.return()
+function* G2() {
+    yield 'abcd';
+    yield 3; 
+    yield 4;
+}
+let k = G2();
+console.log(k.next());   //{value:'abcd', done:false}
+console.log('k.return(999):', k.return("999"));   //k.return(999) => {value:'999', done:true}
+
+//9. yield* 表达式
+//如果在 Generator 函数内部 调用另一个Generator函数 
+function* G2() {
+    yield 'abcd';
+    yield 3; 
+    yield 4;
+}
+function* G3() {
+    yield 1;
+    yield 2; 
+    yield* G2();
+    yield 5;
+}
+for(let k of G3()){
+    console.log('k:', k);
+}
+
+//yield* 跟可遍历对象
+function* G4(){
+    yield 1;
+    yield [2,3,4,5,6];
+    yield 'google.com';
+    yield 7;
+}
+for(let k of G4()){
+    console.log('k:', k);
+}
+
+//10.作为对象的属性Generator函数
+let m = {
+    *G5(){
+        yield* [1,2,3,4]
+    }
+}
+for(let k of m.G5()){
+    console.log('k:',k);
 }
