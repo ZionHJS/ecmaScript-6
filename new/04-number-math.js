@@ -85,3 +85,120 @@ Math.pow(99, 99)
 99 ** 99
 // 3.697296376497268e+197
 
+// Math对象的扩展
+//Math.trunc 去除一个数的小数部分 返回整数部分
+Math.trunc(4.1)   //4
+//对于非数值,Math.trunc内部使用Number方法将其先转为数值
+Math.trunc('123.456');   //123
+Math.trunc(true);   //1
+Math.trunc(null);   //0
+//对于空值和无法截取整数的值 返回NaN
+Math.trunc(NaN);   //NaN
+Math.trunc('foo');   //NaN
+Math.trunc();   //NaN
+Math.trunc(undefined);   //NaN
+//兼容配置
+Math.trunc = Math.trunc || function(x){
+    return x < 0 ? Math.ceil(x) : Math.floor(x);
+};
+
+//Math.sign() 用来判断一个数到底是正数，负数，还是非数值 会将其转换为数值
+//正数 返回+1, 负数 返回-1, 0 返回0, -0 返回-0， 其他值 返回NaN
+Math.sign(-5)  //-1
+Math.sign(5)   //1
+Math.sign(0)  //0
+Math.sign(-0)  //-0
+Math.sign(NaN)  //NaN
+
+//如果是非数值 会自动转化为数值 无法转换的值 会返回NaN
+Math.sign('123')  //1
+Math.sign('abc')  //NaN
+Math.sign(undefined)   //NaN
+
+//兼容配置
+Math.sign = Math.sign || function(x){
+    x = +x;
+    if(x === 0 || isNaN(x)){
+        return x;
+    }
+    return x>0 ? 1 : -1;
+}
+
+//Math.cbrt() 用来计算一个数的立方根
+Math.cbrt(-1)   //-1
+Math.cbrt(0)   //0
+Math.cbrt(1)   //1
+Math.cbrt(2)   //1.25992321323123
+//对于非数值 Math.cbrt方法内部也是最先使用Number方法将其转为数值
+Math.cbrt('8')   //2
+Math.cbrt('hello')  //NaN
+
+//兼容配置
+Math.cbrt = Math.cbrt || function(x){
+    var y = Math.pow(Math.abs(x), 1/3);
+    return x<0 ? -y : y;
+};
+
+//Math.clz32() JavaScript的正数使用32位二进制形式表示 Math.clz32方法返回一个数的32位无符号正数形式 有多少个前导0
+Math.clz32(0)   //32
+Math.clz32(1)   //31
+Math.clz32(1000)   //22
+Math.clz32(0b01000000000000000000000000000000)   //1
+Math.clz32(0b00100000000000000000000000000000)   //2
+// 左移运算符 与 Math.clz32 方法直接相关
+Math.clz32(1 << 1) // 30
+Math.clz32(1 << 2) // 29
+Math.clz32(1 << 29) // 2
+
+//对于小数 Math.clz32方法只考虑整数部分
+Math.clz32(3.2)   //30
+
+//对于空值或者其他类型的值 Math.clz32方法会将它们先转为数值 然后再计算 
+Math.clz32() //32
+Math.clz32(NaN)  //32
+Math.clz32('foo')   //32
+Math.clz32([]) //32
+
+//Math.imul() 方法返回两个数以上以32位带符号整数形式相乘的结果 返回的也是一个32位带符号的整数
+Math.imul(2, 4)  //8
+Math.imul(-1, 8)   //-8
+
+//Math.fround() 返回一个数的32位单精度浮点数形式  
+Math.fround(0);  //0
+Math.fround(1);  //1
+Math.fround(2 ** 24 -1);  //16777215
+
+//如果参数精度大于2的24次方 返回结果便开始丢失精度 
+Math.fround(2 ** 24);  //16777216
+Math.fround(2 ** 24 +1);   //16777216
+
+//对于NaN和Infinity 此方法返回原值 对于其他类型的非数值 Math.fround方法会将其转化为数值 再返回单精度浮点数
+Math.fround(NaN);   //NaN
+Math.fround('5');  //5
+Math.fround(true);   //1
+Math.fround({});  //NaN
+
+//Math.hypot()   方法返回所有参数的平方和的平方根
+Math.hypot(3 , 4);  //5
+Math.hypot(3,4,'5');  //7.078123123
+Math.hypot(-3);   //3
+Math.hypot(NaN);  //NaN
+
+
+//对数方法
+//Math.expm1() Math.expm1(x)返回 ex - 1，即Math.exp(x) - 1
+
+//Math.log1p()  Math.log1p(x)方法返回1 + x的自然对数，即Math.log(1 + x)。如果x小于-1，返回NaN。
+
+//Math.log10()  Math.log10(x)返回以 10 为底的x的对数。如果x小于 0，则返回 NaN。
+
+//Math.log2()   Math.log2(x)返回以 2 为底的x的对数。如果x小于 0，则返回 NaN。
+
+//双曲函数方法
+//ES6新增了6个双曲函数的方法
+// Math.sinh(x) 返回x的双曲正弦（hyperbolic sine）
+// Math.cosh(x) 返回x的双曲余弦（hyperbolic cosine）
+// Math.tanh(x) 返回x的双曲正切（hyperbolic tangent）
+// Math.asinh(x) 返回x的反双曲正弦（inverse hyperbolic sine）
+// Math.acosh(x) 返回x的反双曲余弦（inverse hyperbolic cosine）
+// Math.atanh(x) 返回x的反双曲正切（inverse hyperbolic tangent）
