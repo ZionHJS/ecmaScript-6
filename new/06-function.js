@@ -222,3 +222,83 @@ foo.bind({}).name //'bound foo'
 (function(){}).bind({}).name   //'bound '
 
 //箭头函数 =>
+var f = v => v;
+//等同于
+var f = function(v){
+    return v;
+};
+//如果不需要参数 则可以使用圆括号代替
+var f = () => 5;
+//等同于
+var f = function() {
+    return 5;
+}
+//
+var sum = (num1, num2) => num1 + num2;
+//等同于
+var sum = function(num1, num2){return num1 + num2};
+
+//如果箭头函数的代码块部分多余一条语句 就使用大括号包括起来 并且写入return返回
+var sum = (num1, num2) => {return num1 + num2;}
+
+//大括号被解释为代码块 所以如果箭头函数直接返回一个对象 必须在对象外面加上括号 否则会报错
+let getTempItem = id => {id:id, name:'Temp'};  //SyntaxError: Unexpected token :
+//不报错
+let getTempItem = id =>({id:id, name:'Temp'});
+
+//特殊的情况
+let foo = () =>{ a:1 };
+foo();  //undedined 没有返回值 
+
+//箭头函数与变量解构相结合
+const full = ({first, last}) => first +' '+ last;
+//等同于
+function full(person){
+    return person.first+' '+person.last;
+}
+
+//箭头函数简化回调函数
+[1,2,3].map(function(x){
+    return x*x;
+});
+//箭头函数写法
+[1,2,3].map(x => x*x);
+
+//rest与箭头函数结合的例子
+const numbers = (...nums) => nums;
+numbers(1,2,3,4,5);  //[1,2,3,4,5]
+
+const headAndTail = (head, ...tail) => [head, tail];
+headAndTail(1,2,3,4,5);  //[1,[2,3,4,5]]
+
+//箭头函数的使用注意点
+//1.函数体内this对象 就是定义时所在的对象 而不是使用时所在的对象
+//2.不可以当作构造函数 也就是说 不能使用new命令 会抛出错误
+//3.不可以使用arguments对象 该对象在函数体内不存在 如果要用 可以用rest参数代替
+//4.不可以使用yield命令 因此箭头函数不能用作Generator函数
+
+//this对象的指向在箭头函数中是不能改变的 指向定义时所在的对象
+function foo(){
+    setTimeout(()=>{
+        console.log('id', this.id);
+    }, 100);  //这个箭头函数定义生效是在foo函数生成时，100毫秒后才执行。没有执行setTimeout就不会生成这个函数 所以它相当于调用时才会决定this的指向 属于很特殊的例子了
+}
+var id = 21;
+
+foo.call({id:42});  //42
+
+//箭头函数可以让setTimeout里面的this 绑定定义时所在的作用域 而不是指向运行时所在的作用域 
+function Timer(){
+    this.s1 = 0;
+    this.s2 = 0;
+    //箭头函数  
+    setInterval(() => this.s1++, 1000);
+    //普通函数
+    setInterval(function(){
+        this.s2++;
+    },1000);
+}
+var timer = new Timer();
+
+setTimeout(() => console.log('s1:', timer.s1),3100);   //s1:3
+setTimeout(() => console.log('s2:', timer.s2),3100);   //s2:0
