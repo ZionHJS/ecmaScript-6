@@ -120,4 +120,71 @@ move(); //[0,0]
 //undefined 会触发函数参数的默认值
 [1,undefined,3].map((x='yes') => x);   //[1, 'yes', 3]
 
-//圆括号的问题
+//圆括号的问题 不能使用圆括号的情况
+//1.变量声明
+let[(a)] = [1];   //SyntaxError: Unexpected token
+let[x:(c)] = {};  //SyntaxError: Unexpected token
+let({x:c}) = {};  //SyntaxError: Unexpected token
+let{(x:c)} = {};  //SyntaxError: Unexpected token
+let{(x):c} = {};  //SyntaxError: Unexpected token
+
+let{o:({p:p})} = {o:{p:2}};  //SyntaxError: Unexpected token
+
+//2.函数参数
+function f([z]){return z;};  //SyntaxError: Unexpected token
+function f([z,(x)]){return x;}  //SyntaxError: Unexpected token
+
+//用途 变量的机构赋值用途很多
+//1.交换变量的值
+let x = 1;
+let y = 2;
+[x,y] = [y,x];   //x=2, y=1
+
+//2.从函数返回多个值
+function example(){
+    return [1,2,3];
+}
+let[a,b,c] = example();   //a=1, b=2, c=3
+//返回一个对象
+function example(){
+    return{
+        foo:1, 
+        bar:2
+    };
+}
+let {foo,bar} = example();   //foo=1, bar=2
+
+//函数参数的定义
+//解构赋值可以很方便的将一组参数与变量名对应起来
+//参数是一组有次序的值
+function f([x,y,z]){}
+f([1,2,3]);
+//参数是一组无次序的值
+function f({x,y,z}){}
+f({z:3,y:2,x:1});
+
+//4.提取JSON数据
+let jsonData = {
+    id:42,
+    status:"OK",
+    data:[867,5309]
+};
+let{id, status, data:number} = jsonData;
+console.log(id, status, number);   //42, "OK", [867, 5309]
+
+//5.函数参数的默认值
+
+//6.遍历Map结构 任何部署了iterator接口的对象 都可以用for...of循环遍历 Map结构原生支持iterator结构 配合变量的结构赋值 获取键名和键值就非常方便
+const map = new Map();
+map.set('first','hello');
+map.set('second', 'world');
+
+for(let [key, value] of map){
+    console.log(key + 'is' + value);   //first is hello    //second is world
+}
+
+
+
+
+
+
