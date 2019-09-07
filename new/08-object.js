@@ -366,10 +366,111 @@ Object.getPrototypeOf(null) //TypeError: Cannot convert undefined or null to obj
 Object.getPrototypeOf(undefined) //TypeError: Cannot convert undefined or null to object
 
 //super 关键字
+//this总是指向函数所在的当前对象 super指向当前对象的原型对象
+const proto = {
+    foo: 'hello'
+};
 
+const obj = {
+    foo:'world',
+    find(){
+        return super.foo;  //super指当前对象的原型对象
+    }
+};
+Object.setPrototypeOf(obj, proto);  //把proto 设置为obj的prototype
+obj.find()   //'hello'
 
+//super关键字表示原型对象时 只能用在对象的方法之中 用在其他地方会报错
+const obj = {
+    foo:super.foo  //SyntaxError: 'super' keyword unexpected here
+}
+const obj = {
+    foo: () => super.foo   //SyntaxError: 'super' keyword unexpected here   //这里还是属性之中 并不在方法之中 
+}
+const obj = {
+    foo: function(){   
+        return super.foo  //SyntaxError: 'super' keyword unexpected here   //这里还是属性之中 并不在方法之中
+    }
+}
 
+//javascript引擎内部 super.foo 等同于Object.getPrototypeOf(this).foo(属性) 或 Object.getPrototypeOf(this).foo.call(this) 方法
+const proto = {
+    x:'hello',
+    foo(){
+        console.log(this.x);
+    },
+};
+const obj = {
+    x:'world',
+    foo(){
+        super.foo();
+    }
+}
+Object.setPrototypeOf(obj, proto);
+obj.foo(); //'world'
+//绑定的this变成了obj对象了
 
+//Object.keys()  Object.values()  Object.entries()
+//Object.keys()  返回一个数组 成员是参数对象自身的所有可遍历属性的键名
+var obj = {foo:'bar', baz:42};
+Object.keys(obj)  //['foo', 'baz']
+
+//Object.values() 方法返回一个数组 
+const obj = {foo:'bar', baz:42};
+Object.values(obj)  //['bar', 42]
+//如果参数不是对象是一个字符串 那么就会把字符串转为对象 然后依次输出每个字符
+
+//如果传入null undefined 那么就会报错
+//如果是数组或者Boolean 那么就会返回一个空数组
+
+//Object.entries() 方法返回一个数组 成员是参数对象自身的所有可变连的键值对
+const obj = {foo:'bar', baz:42}
+Object.entries(obj)   //[['foo':'bar],['baz':42]]
+//这个会忽略Symbol值
+
+//对象的扩展运算符 
+//对象的解构复制用于从一个对象取值 相当于将目标对象自身的所有可遍历的enumerable 尚未被读取的属性 分配到指定的对象上面 所有键和它们的值 都会拷贝到新对象上面
+let {x,y,...z} = {x:1, y:2, a:3, b:4};   //...z会直接被拷贝键值对 形成一个新对象
+//a 1, y 2, z {a:3, b:4}
+//同样 如果null 和 undefined都会报错
+//同样 解构赋值必须放在最后一位参数 不然就会报错
+//同样 解构赋值 是浅拷贝 原来的对象 属性 改变 那么新对象里面的值就会随着改变
+
+//扩展运算符的解构赋值 不能赋值继承自原型对象的属性
+let o1 = { a:1 };
+let o2 = { b:2 };
+o2.__proto__ = o1;
+let {...o3} = 02;
+o3   //{b:2}
+o3.a   //undefined
+//上面代码 o3并无法继承o2的原型
+
+//扩展运算符  
+//对象的扩展运算符 用于取出参数对象的所有可遍历属性 拷贝到当前对象之中
+let o1 = { c:1 };
+let z = {a:3, b:4};
+z.__proto__ = o1;
+let n = {...z};  //n => {a:3, b:4}
+n.c  //undefined  验证了无法继承原型
+
+//用户自定义的属性 放在扩展运算符后面 则扩展运算符内部的同名属性会被覆盖掉
+let aWithOverrrides = {...a, x:1, y:2};
+//等同于
+let aWithOverrrides = {...a, {x:1, y:2}};
+//等同于
+let x=1, y=2,aWithOverrrides = {...a, x, y};
+//等同于
+let aWithOverrides = Object.assign({}, a, { x: 1, y: 2 });
+//上面代码中a对象的x属性和y属性 拷贝到新对象后会被覆盖掉
+
+//与数组的扩展运算符一样 对象的扩展运算符后面可以跟表达式
+const obj = {
+    ...a(x>1 ? {a:1} : {}),
+    b:2,
+};
+
+//如果扩展运算符后面是null 和 undefined 不会报错 也没有任何效果
+let emptyObject = {...null, ...undefined};  //没有报错 也没发生任何改变
 
 
 
