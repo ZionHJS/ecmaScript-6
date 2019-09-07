@@ -157,8 +157,134 @@ Object.assign({b:'c'}, Object.defineProperty({}, 'invisible',{
 }))
 //{b:'c'}  //因为enumerable:false
 
+//属性名为Symbol值的属性 也会被Object.assign拷贝s
+Object.assign({a:'b'},{[Symbol('c')]:d})
+//{a:'b', Symbol(c):'d'}
 
+//Object.assign()是浅拷贝 如果源对象的某个属性是对象那么目标对象得到的是这个对象的引用
+const obj1 = {a:{b:1}};
+const obj2 = Object.assign({}, obj1);
 
+obj1.a.b = 2;
+obj2.a.b  //2
+
+//同名属性的替换
+//对于这种嵌套对象 一旦遇到同名属性 Object.assign的处理方法是替换 而不是添加
+const target = {a:{b:'c', d:'e'}}
+const source = {a:{b:'hello'}}
+Object.assign(target, source)  //{a:{b:'hello}}  //d:'e'就被替换掉了
+
+//数组的处理
+//Object.assign可以用来处理数组 但是会把数组视为对象
+Object.assign([1,2,3],[4,5])  //[4,5,3]  //被按index顺序覆盖掉了
+
+//取值函数的处理
+// Object.assign只能进行值的复制 如果复制的值是一个取值函数 那么将求值后再复制
+const source = {
+    get foo(){return 1}
+};
+const target = {};
+
+Object.assign(target, source)   //{foo:1}
+
+//常见的应用
+//1.为对象添加属性
+const Point{
+    constructor(x,y){
+        Object.assign(this, {x,y});
+    }
+}
+//2.为对象添加方法
+Object.assign(SomeClass.prototype,{
+    someMethod(arg1, arg2){
+        //...
+    },
+    anotherMethod(){
+        //...
+    }
+});
+
+//等同于下面的写法
+SomeClass.prototype.someMethod = function (arg1, arg2){
+    //...
+};
+SomeClsss.prototype.anotherMethod = function(){
+    //...
+};
+
+//克隆对象
+function clone(origin){
+    return Object.assign({}, origin);
+}
+
+//合并多个对象
+//将多个对象合并到某个对象
+const merge = (target, ...source) => Object.assign(target, ...source);
+
+//为属性指定默认值
+const DEFAULTS = {
+    logLevel:0, 
+    outputFormat:'html'
+};
+function processContent(options){
+    options = Object.assign({}, DEFAULTS, options);
+    console.log(options);
+}
+//DEFAULTS是默认值 options是用户提供的参数 将两者合成一个新对象
+
+//属性的可枚举性和遍历
+//可枚举性
+//对象的每个属性都有一个描述对象(Descriptor), 用来控制该属性的行为 Object.getOwnPropertyDescriptor方法可以获取该属性的描述对象
+let obj = {foo:123};
+Object.getOwnPropertyDescriptor(obj, 'foo')
+// {value: 123, writable: true, enumerable: true, configurable: true}
+//有四个操作会忽略enumerable为false的属性
+//for...in循环:只遍历对象自身的和继承的可枚举属性
+//Object.keys():返回对象自身的所有可枚举属性的键名
+//JSON.stringigy():只串行化对象自身的可枚举属性
+//Object.assign():忽略enumerable为false属性 只拷贝对象自身的可枚举属性
+
+//其中只有for...in会返回继承的属性 其他三个方法都会忽略继承的属性 只处理对象自身的属性
+
+//属性的遍历
+//1.for...in
+// for...in循环遍历对象自身的和继承的可枚举属性(不含Symbol属性)
+
+//2.Object.keys(obj)
+//Object.keys 返回一个数组 包含对象自身的所有可枚举属性的键名
+
+//3.Object.getOwnPropertyNames(obj)
+//Obkect.getOwnPropertyNames(obj) 返回一个数组 包含对象自身的所有属性(不包含Symbol属性，但是包括不可枚举属性)键名
+
+//4.Object.getOwnPropertySymbols(obj)
+//Object.getOwnPropertySymbols返回一个数组 包含对象自生的所有Symbol属性键名
+
+//5.Reflect.ownKeys(obj)
+//Reflect.ownKeys返回一个数组 包含对象自身的所有键名 不管键名是Symbol还是字符串 也不管是否可枚举
+//以上5种方法遍历对象的键名，都遵循同样的属性遍历的次序规则
+//首先遍历所有数值键 按照数值生序排列, 其次遍历所有字符串键 按照加入时间生序排列, 最后遍历所有Symbol键 按照加入时间生序排列
+
+//Object.getOwnPropertyDescriptors()
+//次方法返回某个对象属性的描述对象(descriptors) 
+const obj = {
+    foo:123,
+    get bar(){return 'abc'}
+};
+
+Object.getOwnPropertyDescriptors(obj);
+//{foo: {…}, bar: {…}}
+//上述方法返回一个对象 所有原对象的属性名都是该对象的属性名 对应的属性值就是该属性的描述对象
+
+//该方法的函数实现
+function getOwnPropertyDescriptor(obj){
+    const result = {};
+    for(let key of Reflect.ownKeys(obj)){
+        result[key] = Object.getOwnPropertyDescriptor(obj, key);
+    }
+    return result;
+}
+
+//__proto__属性 Object.setPrototypeOf(), Object.getPrototypeOf()
 
 
 
