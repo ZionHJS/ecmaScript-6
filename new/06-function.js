@@ -331,3 +331,125 @@ var f = foo.call({id:1});
 var t1 = f.call({id:2})()();  //id
 var t2 = f().call({id:3})();  //id
 var t3 = f()().call({id:4});  //id
+
+//除了this 以下三个变量在箭头函数之中也是不存在的 指向外层函数的对应变量 arguments super new.target
+function foo(){
+    setTimeout(() => {
+        console.log('args:', arguments);
+    },100);
+}
+foo(2,4,6,8);  //args:[2, 4, 6, 8]
+
+//由于箭头函数没有自己的this 所以当然也就不能用call(), apply(), bind()这些方法去改变this的指向
+(function(){
+    return [
+        (() => this.x).bind({x:'inner'})()
+    ];
+}).call({x:'outer'});   //['outer']  //看不懂...
+
+//嵌套的箭头函数
+//箭头函数内部 还可以再使用箭头函数
+let insert = (value) => ({into:(array) => ({after:(afterValue) => {
+    array.splice(array.indexOf(afterValue) + 1, 0, value);
+    return array;
+}})});
+insert(2).into([1,3]).after(1);   //[1,2,3]
+
+//部署管道机制(pipeline)的例子 前一个函数的输出是后一个函数的输入
+const pipeline = (...funcs) =>
+val => funcs.reduece((a,b)=>b(a), val);
+
+const plus1 = a => a + 1;
+const mult2 = a => a * 2;
+const addThenMult = pipeline(plus1, mult2);
+
+addThenMult(5);  //12
+//比较易读的写法
+const plus1 = a => a + 1;
+const mult2 = a => a * 2;
+mult2(plus1(5));  //12
+
+//尾调用优化 (Tail Call)是函数式编程的一个重要概念 本身非常简单 就是指某个函数的最后一步是调用另一个函数 
+function f(x){
+    return g(x);
+}
+//下面三种情况都不属于尾调
+function f(x){
+    let y = g(x);
+    return y;
+}
+function f(x){
+    return g(x) + 1;
+}
+function f(x){
+    g(x);
+}
+//等同于
+function f(x){
+    g(x);
+    return undefined;
+}
+//尾调不一定必须出现在函数尾部 只要是最后一步即可
+function f(x){
+    if(x>0){
+        return m(x)
+    }
+    return n(x);
+}  //这里m n都是f的尾调 因为它们都是函数f的最后一步调用
+
+//尾部调用的优化
+//函数调用会在内存形成一个‘调用记录’， 又称调用帧'call frame' 保存调用位置和内部变量等信息
+//如果在函数A的内调用函数B,那么在A调用帧的上方，还会形成一个B的调用帧 B结束后 调用帧才会消失 如果有很多的嵌套 就会形成一个‘调用栈'
+
+//只有不再用到外层函数的内部变量 内层函数的调用帧才会取代外层函数的调用帧 否则就无法进行 尾调用优化 
+function addOne(a){
+    var one = 1;
+    function inner(b){
+        return b + one;
+    }
+    return inner(a);  //这里inner用到了外层函数的addOne的内部变量one
+}
+
+//尾递归
+//函数调用自身 称为递归 如果尾调用自身 就称为尾递归
+//递归非常容易出错 但是尾递归只存一个调用帧 所以不会发生‘栈溢出’错误 
+function factorial(n){
+    if(n === 1) return 1;
+    return n*factorial(n-1);
+}
+factorial(5);   //120 这里会调用n次
+//改成尾递归的方式
+function factorial(n, total){
+    if(n === 1) return total;
+    return factorial(n-1, n*total);
+}
+factorial(5,1)   //120
+
+//非尾递归的Fibonacci数列实现如下
+function Fibonacci(n){
+    if(n <= 1){return 1};
+    return Fibonacci(n - 1) + Fibonacci(n-2);
+}
+Fibonacci(99); //89
+Fibonacci(100); //堆栈溢出
+//尾递归方式优化
+function Fibonacci2(n, ac1=1, ac2=1){
+    if(n <= 1){return ac2};
+    return Fibonacci2(n-1, ac2, ac1 + ac2);
+}
+Fibonacci2(100) // 573147844013817200000
+Fibonacci2(1000) // 7.0330367711422765e+208
+Fibonacci2(10000) // Infinity
+
+//尾调的严格模式
+//正常模式下函数内部有两个变量 可以跟踪函数的调用栈
+func.arguments: 返回调用时函数的参数
+func.caller: 返回调用当前函数的那个函数
+
+//尾调用优化发生时 函数的调用栈会改写 因此上面两个变量就会失真 严格模式禁用这两个变量 所以尾调模式仅在严格模式下生效
+function restricted() {
+    'use strict'
+    restricted.caller; //报错
+    restricted.arguments;  //报错
+}
+restricted();
