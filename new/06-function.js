@@ -292,13 +292,42 @@ function Timer(){
     this.s1 = 0;
     this.s2 = 0;
     //箭头函数  
-    setInterval(() => this.s1++, 1000);
+    setInterval(() => this.s1++, 1000);  //this绑定定义时所在的作用域(即Timer函数)
     //普通函数
-    setInterval(function(){
-        this.s2++;
-    },1000);
+    setInterval(function(){  
+        this.s2++;  //这里this指向运行时所在的作用域(即全局对象) 
+    },1000)
 }
 var timer = new Timer();
 
 setTimeout(() => console.log('s1:', timer.s1),3100);   //s1:3
 setTimeout(() => console.log('s2:', timer.s2),3100);   //s2:0
+
+//箭头函数可以让this指向固定化 这种特性很利于封装回调函数
+var handler = {
+    id:'123456',
+    
+    init: function(){
+        document.addEventListener('click', event => this.doSomething(event.type), false);
+    },
+    doSomething:function(type){
+        console.log('Handling' + type + ' for ' + this.id);
+    }
+};
+
+//this指向的固定化 并不是因为箭头函数内部有绑定this的机制 实际原因是箭头函数根本没有自己的this 导致内部的this就是外层代码块的this 正是因为没有this 所以也就不能用作构造函数 
+//请问下面的代码之中有几个this?
+function foo(){
+    return () => {
+        return () => {
+            return () => {
+                console.log('id:', this.id);
+            };
+        };
+    };
+}
+var f = foo.call({id:1});
+
+var t1 = f.call({id:2})()();  //id
+var t2 = f().call({id:3})();  //id
+var t3 = f()().call({id:4});  //id
