@@ -176,4 +176,224 @@ const Myclass = class Me{
 let inst = new Myclass();
 inst.getClassName()  //Me
 Me.name  //ReferenceError: Myclass is not defined  //这里Me只在class内部可用
+//如果内部没有用到的话 可以省略Me 也就是可以写成下面的形式
+const MyClass = class{/*...*/}
+
+//采用class表达式 可以写出立即执行的Class
+let person = new class{
+    constrcutor(name){
+        thjis.name = name;
+    }
+    sayName(){
+        console.log(this.name);
+    }
+}('david');
+person.sayName();  //'david'
+//这里 person就是一个立即执行的类的实例
+
+//不存在变量提升
+//类不存在变量提升host
+new Foo();   //ReferenceError: Foo is not defined
+class foo{}
+
+//私有方法和私有属性
+//私有方法是常见的需求 只能通过变通的方法模拟是想
+class Widget{
+    //公有方法
+    foo(baz){
+        this._bar(baz);
+    }
+    //私有方法
+    _bar(baz){
+        return this.snaf = baz;
+    }
+}
+//下划线表示_bar是一个只在内部使用的私有方法 只是一种命名方式
+//实际真正实现私有方法的如下
+//直接将私有方法移出代码块
+class Widget{
+    foo(baz){  //公有方法
+        bar.call(this, baz);  //使用了.call 使得bar实际上称为了真正的私有方法
+    }
+    //...
+}
+function bar(baz){
+    return this.snaf = baz;
+}
+
+//另一种方法 利用[Symbol]值的唯一性 将私有方法的名字命名为一个[Symbol]值
+const bar = Symbol('bar');
+const snaf = Symbol('snaf');
+
+export default class myClass{
+    //公有方法
+    foo(baz){
+        this[bar](baz);
+    }
+    //私有方法
+    [bar](baz){
+        return this[snaf] = baz;
+    }
+    //...
+}
+//这里bar和snaf都是Symbol值 导致第三方无法获取它们
+
+//私有属性尚且在提案之中
+
+//this的指向
+//类的方法内部如果含有this 它默认指向类的实例 
+class Logger{
+    printName(name = 'there'){
+        this.printName(`Hello ${name}`);
+    }
+    print(text){
+        console.log(text);
+    }    
+}
+const logger = new Logger();
+const { printName } = logger;
+printName();   //TypeError: Cannot read property 'printName' of undefined
+//这里单独调用了printName()方法 而 printName()方法的内部this默认指向它的实例 如果在全局中调用 this就会指向运行时所在的环境 就报错
+
+//绑定this 可以在任何地方调用方法
+class Logger{
+    constrcutor(){  
+        this.printName = this.printName.bind(this)   //绑定了this 
+    }
+}
+//第二种方法 箭头函数
+class Logger{
+    constrcutor(){   
+        this.printName = (name = 'there') => {
+            this.print(`Hello${name}`);
+        }
+    }
+}
+
+//name属性
+class Point {}
+Point.name   //'Point'
+//name 属性总是返回紧跟在class关键字后面的类名
+
+//class的取值函数 getter 和存值函数 setter
+class MyClass{
+    constrcutor(){   
+        //...
+    }
+    get prop(){
+        return 'getter';
+    }
+    set prop(value){
+        console.log('setter', +value);
+    }
+}
+let inst = new MyClass();
+
+inst.prop = 123;
+inst.prop //'getter'
+
+//存值函数 setter 和 取值函数 getter 都是设置在属性的Descriptor对象上的
+class CustomHTMLElement{
+    constrcutor(element){
+        this.element = element;
+    }
+    get html(){
+        return this.element.innerHTML;
+    }
+    set html(){
+        this.element.innerHTML = value;
+    }
+}
+var descriptor = Object.getOwnPropertyDescriptor(
+    CustomHTMLElement.prototype,   //"html"
+);
+'get' in descriptor   //true
+'set' in descriptor   //true
+
+//如果在某个方法之前加上* 就表示该方法是一个Generator函数
+class Foo{
+    constrcutor(...args){
+        this.args = args;
+    }
+    *[Symbol.iterator](){
+        for(let arg of this.args){
+            yield arg;
+        }
+    }
+}
+for(let x of new Foo('hello','world')){
+    console.log(x);   // hello world
+}
+
+//class的静态方法
+//类相当于实例的原型 所有在类中定义的方法 都会被实例继承 如果在一个方法前加上static关键字 就表示该方法不会被实例继承 而是直接通过类来调用
+class Foo{
+    static classMethod(){
+        return 'hello';
+    }
+}
+Foo.classMethod()   //'hello'
+
+var foo = new Foo();
+foo.classMethod()  //static 方法没有继承到实例对象
+
+//如果静态方法包含this关键字 this指的是类 而不是实例
+class Foo{
+    static bar(){
+        this.baz();  //this指向了类的baz() 而没有指向实例的baz()
+    }
+    static baz(){
+        console.log('hello');
+    }
+    baz(){
+        console.log('world');
+    }
+}
+Foo.bar()   //hello
+//这里说明 静态方法可以和非静态方法重名 调用的方式而不同
+
+//静态方法可以被子类继承
+class Foo {
+    static classMethod() {
+      return 'hello';
+    }
+  }
+class Bar extends Foo {
+    
+  }
+Bar.classMethod() // 'hello'
+
+//静态方法也是可以从super对象上调用
+class foo{
+    static classMethod(){
+        return 'hello';
+    }
+}
+class Bar extends Foo{
+    static classMethod(){
+        return super.classMethod() + ', too';
+    }
+}
+Bar.classMethod()   //'hello, too'
+
+//class的静态属性和实例属性
+//静态属性是指class本身的属性 Class.propName 而不是定义在实例对象(this)上的属性
+class Foo{
+}
+Foo.prop = 1;   //这里定义了一个静态属性prop  静态属性不是静态方法
+Foo.prop   //1
+//目前class还没有定义静态属性 所以暂时用这种方法 并不能使用 static prop:1 这是无效的
+
+
+class Foo{
+    prop1='abc';
+    static prop2 = '2'
+}
+
+
+
+
+
+
+
 
