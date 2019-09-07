@@ -285,6 +285,89 @@ function getOwnPropertyDescriptor(obj){
 }
 
 //__proto__属性 Object.setPrototypeOf(), Object.getPrototypeOf()
+//__proto__属性(前后两个下划线) 用来读取或者设置当前对象的prototype对象
+var obj = Object.create(someOtherObj);
+obj.method = function(){...};
+//__proto__属性(前后两个下划线) 前后的下划线 说明它本质上是一个内部属性 而不是正式对外的API 建议不要直接使用该属性 
+// 而是通过Object.setPrototypeOf() Object.getPrototypeOf() Object.create() 代替
+//实质上 __proto__ 调用的是Object.prototype.__proto__  具体实现如下
+Object.defineProperty(Object.prototype, '__proto__',{
+    get(){
+        let _thisObj = Object(this);
+        return Object.getPrototypeOf(_thisObj);
+    },
+    set(proto){
+        if(this === undefined || this === nul){
+            throw new TypeError();
+        }
+        if(!isObject(this)){ 
+            return undefined;
+        }
+        if(!isObject(proto)){
+            return undefined;
+        }
+        let status = Reflect.setPrototypeOf(this, proto);
+        if(!status){
+            throw new TypeError();
+        }
+    },
+});
+function isObject(value){
+    return Object(value) === value;
+}
+
+//如果一个对象本身部署了__proto__属性 该属性的值就是对象的原型
+Object.getPrototypeOf({__proto__:null});   //null
+
+//Object.setPrototypeOf() 方法作用与 __proto__相同,用来设置一个对象的prototype对象 返回参数对象本身
+Object.setPrototypeOf(object, prototype);
+const o = Object.setPrototypeOf({}, null);
+
+//该方法等同于下面的函数
+function(obj, proto){
+    obj.__proto__ = proto;
+    return obj;
+}
+//具体的例子
+let proto = {};
+let obj = { x:10 };
+Object.setPrototypeOf(obj, proto);
+proto.y = 20;
+proto.z = 40;
+obj.x //10
+obj.y //20
+obj.z //40
+//上面代码将proto对象设为obj对象的原型 所以从obj对象可以读取proto对象的属性
+
+//如果第一个参数不是对象 虽然会自动转化第一个参数为对象 但是返回的还是第一个参数 所以其实没有任何作用
+Object.setPrototypeOf(1, {}) === 1   //true
+Object.setPrototypeOf('foo', {}) === foo //true
+Object.setPrototypeOf(true, {}) === true  //true
+//由于undefined和null无法转为对象 所以如果第一个参数是undefined和null 就报错
+
+//Object.getPrototypeOf(obj); 该方法与之前的set方法配套 用于读取一个对象的原型对象
+function Rectangle(){
+    //...
+}
+const rec = new Rectangle();
+
+Object.getPrototypeOf(rec) === Rectangle.prototype  //true
+
+Object.setPrototypeOf(rec, Object.prototype);
+Object.getPrototypeOf(rec) === Rectangle.prototype;  //false
+
+//如果参数不是对象 会自动转化为对象 
+Object.getPrototypeOf(1) === Number.prototype   //true
+Object.getPrototypeOf('foo') === String.prototype   //true
+Object.getPrototypeOf(true) === Boolean.prototype   //true
+
+//如果参数是undefined或null 它们无法转为对象 
+Object.getPrototypeOf(null) //TypeError: Cannot convert undefined or null to object
+Object.getPrototypeOf(undefined) //TypeError: Cannot convert undefined or null to object
+
+//super 关键字
+
+
 
 
 
