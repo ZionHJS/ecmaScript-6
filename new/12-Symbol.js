@@ -70,4 +70,74 @@ a[mySymbol]   //undefined
 a['mySymbol']  //"Hello!"
 //这里 因为点运算符后面总是字符串 所以不会读取mySymbol值 导致a属性名实际上是一个字符串 而不是一个Symbol值
 
+//同理 在对象内部 使用Symbol值定义属性时 Symbol值必须放在方括号中
+let s = Symbol();
+let obj = {
+    [s]:function(arg){...};  //s就是Symbol 所以必须放在[]中
+};
+obj[s](123);
+
+//上面代码中 如果s不放在方括号中 该属性的键名就是字符串s 而不是s代表的那个Symbol值 
+//Symbol类型还可以用于定义一组常量 保证这组常量的值都是不相等的
+const log = {};
+
+log.levels = {
+    DEBUG: Symbol('debug'),
+    INFO: Symbol('info'),
+    WARN: Symbol('warn'),
+}
+console.log(log.levels.DEBUG, 'debug message');
+console.log(log.levels.INFO, 'info message');
+
+//最后Symbol值作为属性时 该属性是公开属性 不是私有属性
+
+//属性名的遍历
+//Symbol作为属性名 该属性不会出现在for...in for...of循环中 也不会被Object.keys() Object.getOwnPropertyNames() JSON.stringify返回 
+//它也不是私有属性 有一个Object.getOwnPropertySymbols方法可以拿到 Symbol属性
+//Object.getOwnPropertySymbols 返回的是一个数组 成员是当前对象的所有Symbol属性名的值
+const obj = {};
+let a = Symbol('a');
+let b = Symbol('b');
+
+obj[a] = 'Hello';
+obj[b] = 'World';
+
+const objectSymbols = Object.getOwnPropertySymbols(obj);
+
+objectSymbols   //[Symbol(a), Symbol(b)]
+
+//Reflect.ownKeys 方法可以返回所有类型的键名 包括常规键名和Symbol键名
+let obj = {
+    [Symbol('my_key')]:1,
+    enum:2,
+    nonEnum:3
+};
+Reflect.ownKeys(obj)   //['enum', 'nonEnum', Symbol(my_key)]   //注意 这里Symbol的键名被放到了最后
+
+//由于Symbol的属性不会被常规的遍历方法遍历得到 我们可以利用这个特性 来定义非私有但是值用于内部的方法
+let size = Symbol('size');
+class Collection{
+    constructor(){
+        this[size] = 0;
+    }
+    add(item){
+        this[this[size]] = item;
+        this[size]++;
+    }
+    static sizeOf(instance){
+        return instance[size];
+    }
+}
+let x = new Collection();
+Collection.sizeOf(x)   //0
+
+x.add('foo');
+Collection.sizeOf(x)  //1
+
+Object.keys(x)  //['0']
+Object.getOwnPropertyNames(x)  //['0']
+Object.getOwnPropertySymbols(x)  //[Symbol(size)]
+//这里对象x的size属性是一个Symbol值 所以Object.keys(x) Object.getOwnPropertyNames(x) 都无法获取它 这就造成了一种非私有的内部方法的效果
+
+
 
