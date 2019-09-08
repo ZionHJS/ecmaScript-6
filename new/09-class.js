@@ -384,13 +384,73 @@ Foo.prop = 1;   //这里定义了一个静态属性prop  静态属性不是静�
 Foo.prop   //1
 //目前class还没有定义静态属性 所以暂时用这种方法 并不能使用 static prop:1 这是无效的
 
-
 class Foo{
     prop1='abc';
     static prop2 = '2'
 }
 
+//类的实例属性 
+//类的实例属性可以用等式 写入类的定义之中 
+class MyClass{
+    myProp = 42;  //这里就是实例属性
+    constrcutor(){
+        console.log(this.myProp);   //42
+    }
+}
+class ReactCounter extends ReactCounter.Component{
+    state = {
+        count:0
+    };
+}
+//类的静态属性
+class MyClass{
+    static myStaticProp = 42;
+    constrcutor(){
+        console.log(MyClass.myStaticProp);   //42
+    }
+}
 
+//new.target属性  new是从构造函数生成实例对象的命令 new.target 一般用在构造函数之中 如果构造函数不是通过new命令调用的 new.target会返回undefined 因此这个属性可以用来确定构造函数是怎么调用的
+function Person(name){
+    if(new.target !== undefined){
+        this.name = name;
+    }else{
+        throw new Error ('must use new to create objects')
+    }
+}
+//另一种写法
+function Person(name){
+    if(new.target === Person){
+        this.name = name;
+    }else{
+        throw new Error('must use new to create objects')
+    }
+}
+var person = new Person('david');
+var notAPerson = Person.call(person, 'david');
+
+//class 内部调用new.target 返回当前class
+class Rectangle{
+    constructor(length, width){
+        console.log(new.target === Rectangle);
+        this.length = length;
+        this.width = width;
+    }
+}
+var obj = new Rectangle(3, 4);   //true
+
+//子类继承父类时 new.target会返回子类
+class Rectangle{
+    constructor(length, width){
+        console.log(new.target === Rectangle);
+    }
+}
+class Square extends Rectangle{
+    constructor(length){
+        super(length, length);
+    }
+}
+var obj = new Square(3);   //false  //这里new出来的是子类 不是 父类 所以报错了
 
 
 
