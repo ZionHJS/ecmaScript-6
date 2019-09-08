@@ -196,13 +196,55 @@ class Child extends Parent{
         super.myMethod(msg);
     }
     myMethod(msg){
-        super.myMethod(msg);
+        super.myMethod(msg);  //普通方法中调用super指向父类的原型对象
     }
 }
-Child.myMethod(1);   //static 1
+Child.myMethod(1);   //static 1 调用的是static方法 因为排在第一个
 
 var child = new Child();
 child.myMethod(2);   //instance 2
 //上面代码中 super在静态方法中指向父类 在普通方法中指向父类的原型对象
+
+//子类静态方法中通过super调用父类的方法时 方法内部的this指向当前的子类 而不是子类的实例
+class A {
+    constructor(){
+        this.x = 1;
+    }
+    static print(){
+        console.log(this.x);
+    }
+}
+class B extends A{
+    constructor(){
+        super();
+        this.x = 2;
+    }
+    static m(){
+        super.print();
+    }
+}
+
+B.x = 3;
+B.m()   //3
+
+//使用super的时候 必须显示指定是作为函数 还是作为对象使用 否则会报错
+class A {}
+class B extends A{
+    constructor(){
+        super();
+        console.log(super);  //SyntaxError: 'super' keyword unexpected here
+    }
+}
+
+//上面代码中 console.log(super)当中的super 无法看出是作为函数使用还是作为对象使用 
+//对象总是继承其他对象的 所以可以在任意一个对象中 使用super关键字
+var obj = {
+    toString(){
+        return 'MyObject' + super.toString();
+    }
+};
+obj.toString();  //MyObject:[object, Object]   //对象总是继承至其他对象
+
+//类的prototype属性和__proto__属性
 
 
