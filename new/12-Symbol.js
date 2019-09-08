@@ -139,5 +139,157 @@ Object.getOwnPropertyNames(x)  //['0']
 Object.getOwnPropertySymbols(x)  //[Symbol(size)]
 //这里对象x的size属性是一个Symbol值 所以Object.keys(x) Object.getOwnPropertyNames(x) 都无法获取它 这就造成了一种非私有的内部方法的效果
 
+//Symbol.for(), Symbol.keyFor()
+//Symbol.for() 接收一个字符串作为参数 然后搜索有没有以该参数作为名称的Symbol值 如果有就返回这个Symbol值 否则就新建并返回一个以该字符串为名称的Symbol值
+let s1 = Symbol.for('foo');
+let s2 = Symbol.for('foo');
+s1 === s2   //true
+//这里为什么相等呢？因为都是搜索出来的相同Symbol值
 
+//Symbol.for() Symbol()这两种写法 都会生成新的Symbol 它们的区别是 前者会被登记到全局环境中供搜索 后者不会。Symbol.for() 不会每次调用就返回一个新的Symbol类型的值 而是会先检查给定的key是否已经存在 如果不存在才会新建一个值 
+//比如 调用Symbol.for('cat')30次 每次都会返回同一个Symbol值 但是调用Symbol('cat')30次 会返回30个不同的值
+Symbol.for('bar') === Symbol.for('bar')   //true
 
+Symbol.('bar') === Symbol.('bar')   //false
+
+//Symbol.keyFor()方法返回一个已登记的Symbol类型值的key
+let s1 = Symbol.for('foo');
+Symbol.keyFor(s1);   //'foo'
+let s2 = Symbol('foo')
+Symbol.keyFor(s2)   //undefined 
+
+//内置Symbol值 11个内置的Symbol值 指向语言内部使用的方法
+//Symbol.hasInstance() 指向一个内部方法 当其他对象使用instanceof运算符 判断是否为该对象的实例时 会调用这个方法 foo instanceof Foo 实际调用的是Foo[Symbol.hasInstance]
+class MyClass{
+    [Symbol.hasInstance](foo){
+        return foo instanceof Array;   //判断foo是否为Array实例
+    }
+}
+[1,2,3] instanceof new MyClass() //true
+//这里 MyClass是一个类 new MyClass()会返回一个实例 该实例的Symbol.hasInstance方法 会进行instanceof运算时自动调用 判断左侧的运算子是否为Array实例 
+
+//Symbol.isConcatSpreadable() 这个属性等于一个布尔值 表示该对象用于Array.prototype.concat() 是否可以展开
+let arr1 = ['c','d'];
+['a','b'].concat(arr1, 'e');   //['a','b','c','d','e']
+arr1[Symbol.isConcatSpreadable];   //undefined
+let arr2 = ['c','d'];
+arr2[Symbol.isConcatSpreadable]; = false;
+['a','b'].concat(arr2,'e');
+//Symbol.isConcatSpreadable 默认值为umdefined 设置为true时才可以展开 
+
+//Symbol.species 属性 指向一个构造函数 创建衍生对象时 会使用该属性
+class MyArray extends Array{
+}
+const a = new MyArray(1,2,3);
+const b = a.map(x => x);
+const c = a.filter(x => x > 1);
+
+b instanceof MyArray   //true
+c instanceof MyArray   //true
+//上面代码中 子类MyArray继承了父类Array  a是MyArray的实例 b和c是a的衍生对象 b和c都是调用数组方法生成的 所以应该是数组实例 但是实际它们也是MyArray实例 
+
+//现在我们可以为MyArray设置Symbol.species属性
+class MyArray extends Array{
+    static get [Symbol.species](){return Array;}
+}
+//这里由于定义了Symbol.species属性 创建衍生对象时就会使用这个属性返回函数 作为构造函数 这个例子也说 定义Symbol.species属性要采用get取值器 默认Symbol.species属性的写法如下
+static get [Symbol.species](){
+    return this;
+}
+
+//Symbol.match 属性 指向一个函数 当执行str.match(myObject)时 如果该属性存在就会调用它 返回该方法的返回值
+String.prototype.match(regexp)
+//等同于
+regexp[Symbol.match](this)
+
+class MyMatcher {
+    [Symbol.match](string){
+        return 'hello world'.indexOf(string);
+    }
+}
+'e'.match(new MyMatcher())   //1
+
+//Symbol.replace 指向一个方法 当该对象被String.prototype.replace方法调用时  会返回该方法的返回值
+String.prototype.replace(searchValue, replaceValue)
+//等同于
+searchValue[Symbol.replace](this, replaceValue)
+
+//Symbol.search 指向一个方法 当该对象被String.prototype.search方法调用时 会返回该方法的返回值
+String.prototype.search(regexp)
+//等同于
+regexp[Symbol.search](this)
+
+class MySearch{
+    constructor(value){
+        this.value = value;
+    }
+    [Symbol.search](string){
+        return string.indexOf(this.value);
+    }
+}
+'foobar'.search(new MySearch('foo'));   //8
+
+//Symbol.split 指向一个方法 当该对象被String.proptotype.split方法调用时 会返回该方法的返回值
+String.prototype.split(separator, limit);
+//等同于
+separator[Symbol.split](this, limit)
+
+//Symbol.iterator 指向该对象的默认遍历器方法
+const myIterable = {};
+myIterable[Symbol.iterator] = function* () {
+  yield 1;
+  yield 2;
+  yield 3;
+};
+
+[...myIterable] // [1, 2, 3]
+
+//symbol.toPrimitive 指向一个方法 该对象被转为原始类型的值时 会调用这个方法 返回该对象对应的原始类型值
+let obj = {
+    [Symbol.toPrimitive](hint) {
+      switch (hint) {
+        case 'number':
+          return 123;
+        case 'string':
+          return 'str';
+        case 'default':
+          return 'default';
+        default:
+          throw new Error();
+       }
+     }
+  };
+  
+  2 * obj // 246
+  3 + obj // '3default'
+  obj == 'default' // true
+  String(obj) // 'str'
+
+  //Symbol.toStringTag 指向一个方法 在该对象上面调用Object.prototype.toString方法时 如果这个属性存在 它的返回值就会出现在toString方法返回的字符串中 表示对象的类型 
+  // 例一
+({[Symbol.toStringTag]: 'Foo'}.toString())
+// "[object Foo]"
+
+// 例二
+class Collection {
+  get [Symbol.toStringTag]() {
+    return 'xxx';
+  }
+}
+let x = new Collection();
+Object.prototype.toString.call(x) // "[object xxx]"
+
+//Symbol.unscopables 指向一个对象 该对象指定了使用with关键字 哪些属性会被with环境排除
+Array.prototype[Symbol.unscopables]
+// {
+//   copyWithin: true,
+//   entries: true,
+//   fill: true,
+//   find: true,
+//   findIndex: true,
+//   includes: true,
+//   keys: true
+// }
+
+Object.keys(Array.prototype[Symbol.unscopables])
+// ['copyWithin', 'entries', 'fill', 'find', 'findIndex', 'includes', 'keys']
