@@ -148,5 +148,77 @@ let iterable = {
 
 
   //调用Iterator接口的场景
-  //1.解构赋值
+  //1.解构赋值 对数组和Set结构进行解构赋值时 会默认调用Symbol.iterator方法
+  let set = new Set().add('a').add('b').add('c');
+  let[x,y] = set;  //x='a'; y='b'
+  
+  let[first, ...rest]=set;   //first='a'; rest=['b','c'];
+
+  //2.扩展运算符 也会默认调用Symbol.iterator方法
+  var str = 'hello';
+  [...str]   //['h','e','l','l','o']
+
+  //3.yield yield*后面跟的也是一个可遍历结构 它会调用该解构的遍历器接口
+  let generator = function*(){
+      yield 1;
+      yield* [2,3,4];
+      yield 5;
+  };
+  var iterator = generator();
+  iterator.next() //{value:1, done:false}
+  iterator.next() //{value:2, done:false}
+  iterator.next() //{value:3, done:false}
+  iterator.next() //{value:4, done:false}
+  iterator.next() //{value:5, done:false}
+  iterator.next() //{value:undefined, done:true}
+
+  //4.其他场合
+  //for...of Array.from() Map() Set() WeakMap() WeakSet() Promise.all() Promise.race()
+
+  //字符串Iterator接口
+  //字符串是一个类似数组的对象 也原生具有iterator接口
+  var someString = 'hi';
+  typeof someString[Symbol.iterator]   //function
+  
+  var iterator = someString[Symbol.iterator]();
+  iterator.next()  // { value: "h", done: false }
+  iterator.next()  // { value: "i", done: false }
+  iterator.next()  // { value: undefined, done: true }
+  //字符串也可以调用next()来实现遍历
+
+  //iterator接口与Generator函数
+  //Symbol.iterator方法的最简单实现 还是使用Generator函数
+  let myIterable = {
+      [Symble.iterator]:function*(){
+          yield:1;
+          yield:2;
+          yield:3
+      }
+  }
+  [...myIterable]   //[1,2,3]
+
+  //遍历器对象的return(), throw()
+  //遍历器对象除了具有next()方法 还具有return()和throw()方法 
+  //return()的使用场景 for...of循环提前退出
+  function readLinesSync(file){
+      return{
+          [Symbol.iterator](){
+              return{
+                  next(){
+                      return{done:false};
+                  },
+                  return(){
+                      file.close();
+                      return{done:false};
+                  }
+              };
+          },
+      };
+  }
+  //上面代码中 函数readLinesSync接收一个文件对象作为函数 返回一个遍历器对象 其中除了next方法 还部署了return方法 下面三种情况 都触发执行return方法
+  //break continue  throw new Error()
+
+  //for...of循环
+
+  //数组 
   
