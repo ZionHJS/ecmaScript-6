@@ -337,7 +337,7 @@ class VersionedArray extends Array{
         this.history = [[]];
     }
     commit(){
-        this.history.pushState(this.slice());
+        this.history.push(this.slice());
     }
     revert(){
         this.splice(0, this.length, ...this.history[this.history.length - 1]);
@@ -358,6 +358,36 @@ x  //[1,2,3]
 
 x.revert();
 x  //[1,2]
+//上面代码 有点不懂 
 
+//Mixin模式的实现
+//Mixin 指的是多个对象合成一个新的对象 新对象具有各个组成成员的接口
+const a = {
+    a:'a'
+};
+const b ={
+    b:'b'
+};
+const c = {...a, ...b};  //{a:'a', b:'b'}
+//c对象是a对象和b对象的合成 具有两者的接口
+
+//下面是一个更完备的实现 将多个类的接口混入(mix in) 另一个类
+function mix(...mixins){
+    class Mix{}
+    for(let mixin of mixins){
+        copyProperties(Mix.prototype, mixin);   //拷贝实例属性
+        copyProperties(Mix.prototype. Reflect.getPrototypeOf(mixin));  //拷贝原型属性
+    }
+    return Mix;
+}
+
+function copyProperties(target, source){
+    for(let key of Reflect.ownKeys(source)){
+        if(key !== 'constructor' && key !=='prototype' && key !== 'name'){
+            let desc = Object.getOwnPropertyDescriptor(source, key);
+        }
+    }
+}
+//上面代码的mix函数 可以将多个对象合成为一个类 使用的时候继承这个类即可
 
 
