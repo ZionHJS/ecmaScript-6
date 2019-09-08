@@ -292,3 +292,8 @@ function jsonToMap(jsonStr){
     return new Map(JSON.parse(jsonStr));
 }
 jsonToMap('[[true,7],[{"foo":3},["abc"]]]')   // Map {true => 7, Object {foo: 3} => ['abc']}
+
+
+
+
+
