@@ -7,14 +7,15 @@ console.log(i); //9
 }
 console.log(i); // Uncaught ReferenceError: i is not defined
 
+//JS 中的 for 循环体比较特殊，每次执行都是一个全新的独立的块作用域，用 let 声明的变量传入到 for 循环体的作用域后，不会发生改变，不受外界的影响。
 // i虽然在全局作用域声明，但是在for循环体局部作用域中使用的时候，变量会被固定，不受外界干扰。
 for (let i = 0; i < 10; i++) {
     setTimeout(function () {
         console.log(i);    //  i 是循环体内局部作用域，不受外界影响。
-    }, 0);
+    }, 0);   
 }
 // 输出结果：0  1  2  3  4  5  6  7  8  9
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 10; i++) {   // i虽然在全局作用域声明，但是在for循环体局部作用域中使用的时候，变量会被固定，不受外界干扰。
     console.log(i);   //0  1  2  3  4  5  6  7  8  9
 }
 

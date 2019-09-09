@@ -130,6 +130,10 @@ let{(x):c} = {};  //SyntaxError: Unexpected token
 
 let{o:({p:p})} = {o:{p:2}};  //SyntaxError: Unexpected token
 
+//test
+[(p: a ), { x: c }] = [(), {}];   //Uncaught SyntaxError: Unexpected token :
+[(p), { x: c }] = [(), {}];   //Uncaught SyntaxError: Unexpected token )
+
 //2.函数参数
 function f([z]){return z;};  //SyntaxError: Unexpected token
 function f([z,(x)]){return x;}  //SyntaxError: Unexpected token
@@ -183,7 +187,24 @@ for(let [key, value] of map){
     console.log(key + 'is' + value);   //first is hello    //second is world
 }
 
+//数组 结构赋值 到 对象
+let {a:'aaa', b:'bbb', c:'ccc'} = [a:2,b:3,c:4];  //Uncaught SyntaxError: Invalid destructuring assignment target
 
+let arr = [1, 2, 3];
+let {0 : first, [arr.length - 1] : last} = arr;
+// 0: 1
+// 1: 2
+// 2: 3
+// length: 3
+
+let str = 'hello';
+const [a, b, c, d, e] = 'hello';
+// 0: "h"
+// 1: "e"
+// 2: "l"
+// 3: "l"
+// 4: "o"
+// length: 5
 
 
 
