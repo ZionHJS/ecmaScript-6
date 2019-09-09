@@ -371,3 +371,34 @@ p2.then(result => console.log(result)).catch(error => console.log(error));   //E
         go(it.next())
     }
     run(g);
+    //上面代码的Generator函数g之中 有一个是异步操作getFoo 它返回的就是一个Promise对象 函数run用来处理这个Promise对象 并调用下一个next方法
+
+    //Promise.try();
+    //有时候不直到或者不确定是否要同步函数还是异步操作 但是想用Promise来处理这个函数,因为对于Promise对象都用then方法指定下一步流程 用catch方法处理f抛出的错误 一般就会采用下面的写法
+    Promise.resolve().then(f)
+    //上面的写法有一个缺点 就是如果f是同步函数 那么它会在本轮事件循环的末尾执行
+    const f = () => console.log('now');  //同步函数
+    Promise.resolve().then(f);  //被包装成了异步函数 会在代码的最后才执行
+    console.log('next');  //next now  
+
+    //既可以是异步函数 又可以同步执行的方法
+    //1. async来写
+    const f = () => console.log('now');
+    (async() => f())();
+    console.log('next');  //now next
+    //这里 第二行是一个立即执行的匿名函数 会立即执行里面的async函数 因此如果f是同步 就会得到同步的结果 如果f是异步 就可以用then指定下一步 
+    //等同于这个写法
+    (async() => f())().then(...)
+
+    //需要注意的是 async() => f() 会吃掉 f()抛出的错误 所以 如果想捕获错误 要使用promise.catch方法
+    (async() => f())().then(...).catch(...)
+    //第二种写法是使用new Promise()
+    const f = () => console.log('now');
+    (() => new Promise(resolve => resolve(f()) ))();
+    console.log('next');
+    //上面代码匿名立即执行了new Promise() 这种情况下 同步函数也是同步执行的
+    
+    
+
+    
+    
