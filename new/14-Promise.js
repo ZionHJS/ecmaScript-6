@@ -330,3 +330,44 @@ p2.then(result => console.log(result)).catch(error => console.log(error));   //E
     });   //true
     //上面代码中 Promise.reject方法的参数是一个thenable对象 执行以后 后面的catch方法的参数不是reject抛出的'error'这个字符串 而是thenable对象
     
+    //Promise的应用
+    //加载图片 我们可以将图片的加载写成一个Promise 一旦加载完成 Promise的状态就会发生改变
+    const preloadImage = function(path){
+        return new Promise(function(resolve, reject){
+            const image = new Image();
+            image.onload = resolve;
+            image.onerror = reject;
+            image.src = path;
+        });
+    };
+
+
+    //Generator函数与Promise的结合
+    //使用Generator函数管理流程 遇到异步操作的时候 通常会返回一个Promise对象
+    function getFoo(){
+        return new Promise(function(resolve, rejection){
+            return ('foo');
+        });
+    }
+    const g = function* (){
+        try{
+            const foo = yield getFoo();
+            console.log(foo);
+        }catch(e){
+            console.log(e);
+        }
+    };
+
+    function fun(generator){
+        const it = generator();
+        function go(result){
+            if(result.done) return result.value;
+             return result.value.then(function(value){
+                 return go(it.next(value));
+             },function(error){
+                 return go(it.throw(error));
+             });
+        }
+        go(it.next())
+    }
+    run(g);
