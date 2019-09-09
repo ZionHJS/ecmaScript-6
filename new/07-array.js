@@ -188,3 +188,20 @@ Array(3)   //[ , , ]
 
 
 
+//test
+const a1 = [1,2];
+const a2 = [...a1];   //深拷贝
+const [...a2] = a1;   //深拷贝
+
+//扩展运算符 只能放在参数的最后一位 否则报错
+const [...butLast, last] = [1, 2, 3, 4, 5];
+// 报错
+
+//扩展运算符 可以 将 部署有Iterator接口类数组对象转为真正的数组
+
+//Map Set Generator函数都具有Iterator接口
+
+//对于没有Iterator接口的对象 使用扩展运算符 将会报错
+const obj = {a: 1, b: 2};
+let arr = [...obj]; // TypeError: Cannot spread non-iterable object
+
