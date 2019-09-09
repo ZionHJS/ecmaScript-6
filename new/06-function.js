@@ -472,3 +472,63 @@ function foo({ x, y = 5 } = {}) {
 
 foo() // undefined 5
 
+//比较难搞懂的一种情况
+// 写法一
+function m1({ x = 0, y = 0 } = {}) {
+    return [x, y];
+}
+
+// 写法二
+function m2({ x, y } = { x: 0, y: 0 }) {
+    return [x, y];
+}
+// 上面两种写法都对函数的参数设定了默认值，区别是写法一函数参数的默认值是空对象，
+// 但是设置了对象解构赋值的默认值；写法二函数参数的默认值是一个有具体属性的对象，但是没有设置对象解构赋值的默认值。
+
+//一旦设置了参数的默认值 函数进行声明时 参数就会形成一个单独的作用域context
+var x = 1;
+function f(x, y = x) {
+    console.log(y);
+}
+//没有设置默认值时
+var x = 1;
+function f(x) {
+    console.log(x);
+}
+f();
+//设置默认值时
+var x = 1;
+function f(y = x) { //这里x没有写在等号前面 所以x是没有定义的 只能去全局找 
+    console.log(y);
+}
+f();  //=> 1
+
+//() 与 {} 里的作用域是分开的
+function f(y = x) {
+    let x = 2;
+    console.log(y);
+}
+
+f() // ReferenceError: x is not defined
+
+//参数的单独作用域
+var x = 1;
+function foo(x, y = function() { x = 2; }) {   //这里两个x都是在同一作用域里面
+  var x = 3;
+  y();
+  console.log(x);
+}
+
+foo() // 3
+x // 1
+
+//函数的length属性 不包括设置了默认中 和...rest的参数的长度
+(function(x,y,z=1,...c){}).length  //2  only x y
+
+//如果箭头函数返回一个对象 必须在对象外面加上括号 否则报错
+// 不报错
+let getTempItem = id => ({ id: id, name: "Temp" });
+let foo = () => { a: 1 };  // 如果这里是对象 还要在 右边套一个大括号
+foo() // undefined  
+
+
