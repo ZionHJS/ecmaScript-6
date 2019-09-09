@@ -132,6 +132,201 @@ p2.then(result => console.log(result)).catch(error => console.log(error));   //E
  })
 
  //Promise.prototype.then()
- //
+ //Promise实例具有then() 其实then()是定义在Promise.prototype原型对象上的 
+ //then()的作用为Promise实例添加状态改变时的回调函数 前面说过 then()的第一个参数是resolved状态的回调函数 第二个参数是rejected状态的回调函数 
  
+ //then()返回的是一个新的Promise实例 因此可以采用链式写法编程
+ getJSON('/post.json').then(function(json){
+     return json.post;
+ }).then(function(post){
+     //...
+ });
+ //上面连续调用了两个then 第一个then的回调函数结果返回到第二个then作为参数
+ 
+ //采用链式的then 可以指定一组按照次序调用的回调函数 这时前一个回调函数 有可能返回的还是一个Promise对象 这时后一个回调函数 就会等待该Promise对象的状态发生变 才会被调用
+ getJSON('/post.json').then(function(post){
+     return getJSON(post.commentURL);
+ }).then(function funcA(comments){
+     console.log('resolved', comments);
+ },function funcB(err){
+     console.log('rejected:', err)
+ });
+ //这里第一个then方法指定的回调函数返回一个Promise对象 这是第二个then方法的回调函数会登台这个新的Promise对象的状态发生变 才决定调用哪个参数函数
 
+ //Promise.prototype.catch() === .then(null, rejection) 用于指定发生错误时的回调函数
+ getJSON('/post.json').then(function(posts){
+     //...
+ }).catch(function(err){
+     //处理getJSON 和 前一个回调函数运行时发生的错误
+     console.log('error happened', error);
+ });
+ //上面的代码中 getJSON方法返回一个Promise对象 如果该对象状态变为resolved 则会调用then方法指定的回调函数 如果异步抛出错误 状态就变为rejected 就会调用catch方法指定的回调 
+ //另外then方法里面的错误 也会被catch方法捕捉到
+ P.then((val)=>console.log('fulfiled:', val)).catch((err)=>console.log('rejected',err));
+
+ //下一个例子
+ const promise = new Promise(function(resolve, reject) {
+    throw new Error('test');
+  });
+  promise.catch(function(error) {
+    console.log(error);
+  });
+  //reject方法的作用 等同与抛出错误
+  
+  //如果Promise状态已经变为resolved 再抛出错误是无效的 为什么?因为状态已经凝固了
+
+  //Promise对象的错误具有“冒泡”性质 会一直向后传递 直到被捕为止 也就是说错误总是会被下一个catch语句捕获
+  getJSON('/post/1.json').then(function(post){
+      return getJSON(post.commentURL);
+  }).then(function(comments){
+      //...
+  }).catch(function(error){
+      //处理前面三个Promise发生的错误
+  });
+  //上面三Promise对象 任何一个产生错误都会被catch捕获
+  //一般来说不建议使用then的第二个参数来设定reject的回调函数 直接在最后用catch就好
+
+  //如果没有在外面设置catch那么Promisen内部的错误就不会传递到外面 通俗的说Promise会吃掉错误
+
+  //一般总是建议Promise后面跟catch方法 这样可以处理Promise内部发生的错误 catch方法返回的还是一个Promise对象 因此后面还可以接着调用then方法
+  const someAsyncThing = function(){
+      return new Promise(function(resolve, reject){
+          resolve(x + 2);
+      });
+  };
+  someAsyncThing().catch(function(error){
+      console.log('oh no', error);
+  }).then(function(){
+      console.log('carry on');
+  });
+  //oh no [ReferenceError: x is not defined]
+  //carry on 
+  //上面代码 运行完报错的catch 接着运行then()
+  
+  //catch方法之中 还能再抛出错误
+  const someAsyncThing = function(){
+      return new Promise(function(resolve, reject){
+          resolve(x + 2);
+      });
+  };
+  someAsyncThing().then(function(){
+      return someAsyncThing();
+  }).catch(function(error){
+      console.log('oh no', error);
+      y + 2;  //y没有被定义 但是后面没有办法捕获这个错误
+  }).then(function(){
+      console.log('carry on')  //由于有错误没有被捕获到 所以这里的代码不会运行
+  });
+  //oh no [ReferenceError: x is not defined]
+  //上面代码中catch里面抛出了一个错误 因为后面没有别的catch方法了 导致这个错误不会被捕获 也不会传递到外层 如果改写一下 就不一样了
+  someAsyncThing().then(function(){
+      return someOtherAsyncThing();
+  }).catch(function(error){
+      console.log('oh no', error);
+      y + 2;
+  }).catch(function(error){
+      console.log('carry on', error)
+  });
+  // oh no [ReferenceError: x is not defined]
+  // carry on [ReferenceError: y is not defined]
+  //上面代码第二个catch捕获了前面的错误 代码运行到了最后
+
+  Promise.prototype.finally()
+  //finally方法用于指定不管Promise对象最后的状态如何 都会执行的操作 
+  Promise.then(result => {...}).catch(error => {...}).finally(() => {...});
+  //这里不管Promise最后的状态 在执行完then和catch指定的回调函数以后 都会执行finally方法指定的回调函数
+  //下面是一个例子 服务器使用Promise处理请求 然后使用finally方法关掉服务器
+  server.listen(port).then(function(){...}).finally(server.stop);
+  
+  //finally方法的回调函数不接收任何参数 这意味着没有办法直到 前面的Promise状态到底是fulffilled还是rejected 这表明finally方法里面的操作 与状态无关 不依赖Promise的执行结果
+
+  //finally本质上还是then方法的特例
+  Promise.finally(() => {
+      //...
+  });
+  //等同于
+  Promise.then(result => {
+      //...
+      return result;
+  }),
+  error => {
+      //...
+      throw error;
+  }
+  //上面代码中finally简化了操作
+  
+
+  //Promise.all()
+  //Promise.all方法用于将多个Promise实例 包装成一个新的Promise实例
+  const p = Promise.all([p1, p2, p3]);
+  //上面代码 Promise.all方法接收一个数组作为参数 p1,p2,p3都是Promise实例 如果不是 就会先调用下面讲到的Promise.resolve方法 将参数转为Promise实例 再进一步处理
+  //p的状态由 p1, p2, p3公共决定 
+  //1.只有当p1,p2,p3状态都是fulfilled p的状态才是fulfilled  此时p1,p2,p3的返回值组成一个数组 传给p的回调函数 
+  //2.只要p1,p2,p3之中有一个被reject p的状态就是reject 此时被第一个reject的实例的返回值 会传递给p的回调函数
+  const promises = [2,3,5,7,11,13].map(function(id){
+      return getJSON('/post/'+id+'json');
+  });
+  Promise.all(promises).then(function(posts){
+      //...
+  }).catch(function(reason){
+      //...
+  });
+  //上面代码 promises是包含6个Promise实例的数组 只有这6个实例的状态都编程fulfilled 或者其中有一个变为rejected 才会调用Promise.all方法后面的回调函数
+  
+  //如果作为参数的Promise实例 自己定义了catch方法 那么它一旦被rejected 并不会触发Promise.all()的catch方法
+  const p1 = new Promise((resolve, reject) => {
+      resolve('hello');
+  }).then(result => result).catch(e => e);
+  const p2 = new Promise((resolve, reject) => {
+      throw new Error('error')
+  }).then(result => result).catch(e => e);
+
+  Promise.all([p1, p2]).then(result => console.log(result)).catch(e => console.log(e));   //['hello', Error: error]
+  //这里 p1 会resolve p2首先会rejected 但是p2有自己的catch方法 该方法返回一个新的Promise实例 p2指向的实际上是这个实例 该实例执行完catch方法之后 也会变成resolved 导致Promise.all()方法参数里面的两个实例都会resolved 因此调用then方法指定的回调函数 而不会调用catch方法指定的回调函数
+  //如果p2没有自己的catch方法 就会调用Promise.all()的catch方法
+  
+  //Promise.race() 方法同样是将多个Promise实例 包装成一个新的Promise实例
+  const p = Promise.trace([p1, p2, p3]);
+  //上面代码中 只要p1, p2, p3之中有一个实例率先改变 p的状态就跟着改变 那个率先改变的Promise实例的返回值 就传递给p的回调函数
+  //Promise.race方法的参数与Promise.all方法一样 如果不是Promise实例 就会先调用下面讲到的Promise.resolve方法 将参数转为Promise实例 再进一步处理
+  const p = Promise.race([  
+      fetch('/resource-that-mahy-take-a-while'),
+      new Promise(function(resolve, reject){
+          setTimeout(() => reject(new Error('request timeout')),5000)
+      })
+    ]);
+    p.then(console.log).catch(console.error);
+    //上面代码中 如果5秒内fetch方法无法返回结果 变量p的状态就会变为rejected 从而触发catch方法指定的回调函数
+    
+    //Promise.resolve()
+    //有时需要将现有对象转为Promise对象 Promise.resolve方法就起到这个作用
+    const jsPromise = Promise.resolve($.ajax('/whatever.json'));
+    //Promise.resolve等同于下面的写法
+    Promise.resolve('foo')
+    //等价于
+    new Promise(resolve => resolve('foo'))
+    
+    //Promise.resolve方法的参数分为下面的四种情况
+    //参数是Promise实例 / 参数是thenable对象 / 参数不具有then方法的对象 或根本就不是对象 / 不带有任何参数
+
+    //Promise.reject() 方法也会返回一个新的Promise实例 该实例的状态为rejected
+    const p = Promise.reject('error');
+    //等同于
+    const p = new Promise((resolve, reject) => reject('error'))
+
+    p.then(null, function(s){
+        console.log(s)
+    });   //error
+    //上面的代码生成一个Promise对象实例p 状态为rejected 回调函数会立即执行
+    
+    //Promise.reject()方法的参数 会原封不动作为reject的理由 变成后续方法的参数 这一点与Promise.resolvd方法不一致
+    const thenable = {
+        then(resolve, reject){
+            reject('error');
+        }
+    };
+    Promise.reject(thenable).catch(e => {
+        console.log(e === thenable)
+    });   //true
+    //上面代码中 Promise.reject方法的参数是一个thenable对象 执行以后 后面的catch方法的参数不是reject抛出的'error'这个字符串 而是thenable对象
+    
