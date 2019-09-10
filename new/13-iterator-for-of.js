@@ -266,38 +266,38 @@ for (var [name, value] of es6) {
 
 //并不是所有类似数组的对象都具有Iterator接口 一个渐变的解决方法 就是使用Array.from方法将其转为数组 
 let arrayLike = {
-    length:2, 0:'a', 1:'b'
+    length: 2, 0: 'a', 1: 'b'
 }
-for(let x of arrayLike){
+for (let x of arrayLike) {
     console.log(x);  //报错
 }
-for(let x of Array.from(arrayLike)){
+for (let x of Array.from(arrayLike)) {
     console.log(x);  //正确
 }
 
 //对象 对于普通对象 for...of结构不能直接使用 会报错 必须部署了iterator接口后才能使用 但是这种情况下for...in循环依然可以用来遍历键名
 let es6 = {
-    edition:6,
-    committee:'TC39',
-    standard:'ECMA-262'
+    edition: 6,
+    committee: 'TC39',
+    standard: 'ECMA-262'
 };
-for(let e in es6){
+for (let e in es6) {
     console.log(e);  //无错
 }
-for(let e of es6){
+for (let e of es6) {
     console.log(e)  //报错 因为没有部署[Symbol.iterator] 接口
 }
 //解决方法一 使用Object.keys方法将对象的键名生成一个数组 然后遍历这个数组
-for(var key of Object.keys(someObject)){
+for (var key of Object.keys(someObject)) {
     console.log(key + ':' + someObject[key]);
 }
 //解决方法二 使用Generator函数将对象重新包装一下
-function* entries(obj){
-    for(let key of Object.keys(obj)){
-        yield[key, obj[key]];
+function* entries(obj) {
+    for (let key of Object.keys(obj)) {
+        yield [key, obj[key]];
     }
 }
-for(let [key, value] of entries(obj)){
+for (let [key, value] of entries(obj)) {
     console.log(key, '=>' value);
 }
 
@@ -307,3 +307,76 @@ for(let [key, value] of entries(obj)){
 //forEach 无法使用 return break中途跳出循环
 
 //for...in 是以字符串来作为键名  会主动遍历原型上的键   有些情况下 还会以任意顺序遍历键名
+
+//TEST
+//四种数据集合 Array  Object  Map Set
+//遍历器（Iterator）就是这样一种机制。它是一种接口，为各种不同的数据结构提供统一的访问机制。
+//任何数据结构只要部署 Iterator 接口，就可以完成遍历操作（即依次处理该数据结构的所有成员。
+
+//每一次调用next方法 就会返回数据结构的当前成员信息 就是返回一个包含value和done两个属性的对象 value属性是当前成员的值 done属性是一个布尔值 表示遍历是否结束
+
+//ES6 规定，默认的 Iterator 接口部署在数据结构的Symbol.iterator属性
+const obj = {
+    [Symbol.iterator]: function () {
+        return {
+            next: function () {
+                return {
+                    value: 1,
+                    done: true
+                };
+            }
+        };
+    }
+};
+
+
+// 原生具备 Iterator 接口的数据结构如下。
+
+// Array
+// Map
+// Set
+// String
+// TypedArray
+// 函数的 arguments 对象
+// NodeList 对象
+
+//数组的Symbol.iterator属性
+let arr = ['a', 'b', 'c'];
+let iter = arr[Symbol.iterator]();
+
+iter.next() // { value: 'a', done: false }
+iter.next() // { value: 'b', done: false }
+iter.next() // { value: 'c', done: false }
+iter.next() // { value: undefined, done: true }
+
+//字符串的Iterator接口
+var someString = "hi";
+typeof someString[Symbol.iterator]
+// "function"
+
+var iterator = someString[Symbol.iterator]();
+
+iterator.next()  // { value: "h", done: false }
+iterator.next()  // { value: "i", done: false }
+iterator.next()  // { value: undefined, done: true }
+
+//调用了[Symbol.iterator]接口才能直接使用.next()方法去遍历
+var iterator = someString[Symbol.iterator]();
+iterator.next()
+
+//JavaScript for...in循环获得对象键名 for...of循环 获得遍历键值
+let arr = [3, 5, 7];
+arr.foo = 'hello';
+
+for (let i in arr) {
+    console.log(i); // "0", "1", "2", "foo"
+}
+
+for (let i of arr) {
+    console.log(i); //  "3", "5", "7"
+}
+
+//其他的遍历方法
+//1.for 循环
+//2.forEach方法
+
