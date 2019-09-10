@@ -458,9 +458,49 @@ someAsyncThing().then(function () {
 //Promise.prototype.finally()
 //不管Promise对象的最后状态如何 都会执行的操作 
 promise
-.then(result => {···})
-.catch(error => {···})
-.finally(() => {···});  //不管前面如何 最后都会执行的操作
+    .then(result => { ··· })
+    .catch(error => { ··· })
+    .finally(() => { ··· });  //不管前面如何 最后都会执行的操作
+
+//.finally方法不接收任何参数 所以不直到前面到底什么状态了 但它本质就是then方法的特例
+promise
+    .finally(() => {
+        // 语句
+    });
+
+// 等同于
+promise
+    .then(
+        result => {
+            // 语句
+            return result;
+        },
+        error => {
+            // 语句
+            throw error;
+        }
+    );
+
+//Promise.all()用于将多个Promise实例 包装成一个新的Promise实例
+
+//Promise.resolve 有时需要将现有对象转为Promise对象 Promise.resolve方法就起到这个作用
+//1.参数是一个Promise实例 Promise.resolve将不做任何修改 原封不动的返回这个实例
+//2.参数是一个thenable对象 就是指具有then方法的对象
+let thenable = {
+    then: function (resolve, reject) {
+        resolve(42);
+    }
+};
+//Promise.resolve 方法会将这个对象转为Promise对象 然后立即执行thenable对象的then方法 然后返回一个新的Promise对象 状态为 resolved 
+
+
+
+
+
+
+
+
+
 
 
 
