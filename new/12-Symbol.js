@@ -368,8 +368,33 @@ function getArea(shape, options) {
 
 getArea(shapeType.triangle, { width: 100, height: 100 });
 
+//属性名的遍历
+//Symbol 作为属性名，该属性不会出现在for...in、for...of循环中，也不会被Object.keys()、Object.getOwnPropertyNames()、JSON.stringify()返回。但是，它也不是私有属性，有一个Object.getOwnPropertySymbols方法，可以获取指定对象的所有 Symbol 属性名。
+
+//新的API Relfect.ownKeys方法可以返回所有类型的键名 包括常规键名和Symbol键名
+let obj = {
+    [Symbol('my_key')]: 1,
+    enum: 2,
+    nonEnum: 3
+};
+
+Reflect.ownKeys(obj)
+//  ["enum", "nonEnum", Symbol(my_key)]  Symbol键名会出现在最后
+
+//Symbol.for() 搜索 如果有就返回该值 没有就以该字符串为名称创建Symbol值
+
+//对于Node来说 模块文件可以看成是一个类 怎么保证每次执行这个模块文件 返回都是同一个实例呢？ 可以把实例放到顶层对象global
 
 
+//11个内置的Symbol值 
+//Symnbol.hasInstance Symbol.isConcatSpereadable  Symbol.species  Symbol.match Symbol.replace Symbol.search Symbol.split Symbol.iteator Symbol.toPrimitive Symbol.toStringTag Symbol.unscopables
 
+//foo instancof Foo 实际调用额是F[Symbol.hasInstance](foo)
+class MyClass {
+    [Symbol.hasInstance](foo) {
+        return foo instanceof Array;
+    }
+}
 
+[1, 2, 3] instanceof new MyClass() // true
 
