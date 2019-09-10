@@ -18,7 +18,7 @@ s2.toString()   //'Symbol(bar)'
 //这里 s1 s2是两个Symbol值 如果不传参数 它们在控制台的输出都是Symbol() 不利于区分 加了参数以后输出就是Symbol(arg) 就方便区分了
 //如果Symbol函数的参数是个对象 就会调用对象的toString方法 将其转为字符串 然后才生成一个Symbol值
 const obj = {
-    toString(){
+    toString() {
         return 'abc';
     }
 };
@@ -27,7 +27,7 @@ const sym = Symbol(obj);   //Symbol(abc)
 //Symbol值不能与其他类型的值进行运算 会报错
 let sym = Symbol('My symbol');
 'your symbol is' + sym   //TypeError: Cannot convert a Symbol value to a string
-`your symbol is ${sym}`  //TypeError: Cannot convert a Symbol value to a string
+    `your symbol is ${sym}`  //TypeError: Cannot convert a Symbol value to a string
 
 //但是Symbol值可以显示转为字符串  注意 只是显示
 let sym = Symbol('My symbol');
@@ -38,7 +38,7 @@ sym.toString() //'Symbol(My symbol)'
 //另外Symbol值可以转为布尔值 但不能转为数值
 let sym = Symbol();
 Boolean(sym)  //true
-if(sym){
+if (sym) {
     //...
 }
 Number(sym)  //TypeError
@@ -52,11 +52,11 @@ let a = {};
 a[mySymbol] = 'Hello';
 //第二种写法
 let a = {
-    [mySymbol]:'Hello!'
+    [mySymbol]: 'Hello!'
 };
 //第三种写法
 let a = {};
-Object.defineProperty(a, mySymbol, {value:'Hello'});
+Object.defineProperty(a, mySymbol, { value: 'Hello' });
 //同样的结果
 a[mySymbol]  //'Hello'
 
@@ -73,7 +73,7 @@ a['mySymbol']  //"Hello!"
 //同理 在对象内部 使用Symbol值定义属性时 Symbol值必须放在方括号中
 let s = Symbol();
 let obj = {
-    [s]:function(arg){...};  //s就是Symbol 所以必须放在[]中
+    [s]: function (arg) {...};  //s就是Symbol 所以必须放在[]中
 };
 obj[s](123);
 
@@ -108,23 +108,23 @@ objectSymbols   //[Symbol(a), Symbol(b)]
 
 //Reflect.ownKeys 方法可以返回所有类型的键名 包括常规键名和Symbol键名
 let obj = {
-    [Symbol('my_key')]:1,
-    enum:2,
-    nonEnum:3
+    [Symbol('my_key')]: 1,
+    enum: 2,
+    nonEnum: 3
 };
 Reflect.ownKeys(obj)   //['enum', 'nonEnum', Symbol(my_key)]   //注意 这里Symbol的键名被放到了最后
 
 //由于Symbol的属性不会被常规的遍历方法遍历得到 我们可以利用这个特性 来定义非私有但是值用于内部的方法
 let size = Symbol('size');
-class Collection{
-    constructor(){
+class Collection {
+    constructor() {
         this[size] = 0;
     }
-    add(item){
+    add(item) {
         this[this[size]] = item;
         this[size]++;
     }
-    static sizeOf(instance){
+    static sizeOf(instance) {
         return instance[size];
     }
 }
@@ -160,27 +160,27 @@ Symbol.keyFor(s2)   //undefined
 
 //内置Symbol值 11个内置的Symbol值 指向语言内部使用的方法
 //Symbol.hasInstance() 指向一个内部方法 当其他对象使用instanceof运算符 判断是否为该对象的实例时 会调用这个方法 foo instanceof Foo 实际调用的是Foo[Symbol.hasInstance]
-class MyClass{
-    [Symbol.hasInstance](foo){
+class MyClass {
+    [Symbol.hasInstance](foo) {
         return foo instanceof Array;   //判断foo是否为Array实例
     }
 }
-[1,2,3] instanceof new MyClass() //true
+[1, 2, 3] instanceof new MyClass() //true
 //这里 MyClass是一个类 new MyClass()会返回一个实例 该实例的Symbol.hasInstance方法 会进行instanceof运算时自动调用 判断左侧的运算子是否为Array实例 
 
 //Symbol.isConcatSpreadable() 这个属性等于一个布尔值 表示该对象用于Array.prototype.concat() 是否可以展开
-let arr1 = ['c','d'];
-['a','b'].concat(arr1, 'e');   //['a','b','c','d','e']
+let arr1 = ['c', 'd'];
+['a', 'b'].concat(arr1, 'e');   //['a','b','c','d','e']
 arr1[Symbol.isConcatSpreadable];   //undefined
-let arr2 = ['c','d'];
+let arr2 = ['c', 'd'];
 arr2[Symbol.isConcatSpreadable]; = false;
-['a','b'].concat(arr2,'e');
+['a', 'b'].concat(arr2, 'e');
 //Symbol.isConcatSpreadable 默认值为umdefined 设置为true时才可以展开 
 
 //Symbol.species 属性 指向一个构造函数 创建衍生对象时 会使用该属性
-class MyArray extends Array{
+class MyArray extends Array {
 }
-const a = new MyArray(1,2,3);
+const a = new MyArray(1, 2, 3);
 const b = a.map(x => x);
 const c = a.filter(x => x > 1);
 
@@ -189,11 +189,11 @@ c instanceof MyArray   //true
 //上面代码中 子类MyArray继承了父类Array  a是MyArray的实例 b和c是a的衍生对象 b和c都是调用数组方法生成的 所以应该是数组实例 但是实际它们也是MyArray实例 
 
 //现在我们可以为MyArray设置Symbol.species属性
-class MyArray extends Array{
-    static get [Symbol.species](){return Array;}
+class MyArray extends Array {
+    static get [Symbol.species]() { return Array; }
 }
 //这里由于定义了Symbol.species属性 创建衍生对象时就会使用这个属性返回函数 作为构造函数 这个例子也说 定义Symbol.species属性要采用get取值器 默认Symbol.species属性的写法如下
-static get [Symbol.species](){
+static get[Symbol.species](){
     return this;
 }
 
@@ -203,7 +203,7 @@ String.prototype.match(regexp)
 regexp[Symbol.match](this)
 
 class MyMatcher {
-    [Symbol.match](string){
+    [Symbol.match](string) {
         return 'hello world'.indexOf(string);
     }
 }
@@ -219,11 +219,11 @@ String.prototype.search(regexp)
 //等同于
 regexp[Symbol.search](this)
 
-class MySearch{
-    constructor(value){
+class MySearch {
+    constructor(value) {
         this.value = value;
     }
-    [Symbol.search](string){
+    [Symbol.search](string) {
         return string.indexOf(this.value);
     }
 }
@@ -237,9 +237,9 @@ separator[Symbol.split](this, limit)
 //Symbol.iterator 指向该对象的默认遍历器方法
 const myIterable = {};
 myIterable[Symbol.iterator] = function* () {
-  yield 1;
-  yield 2;
-  yield 3;
+    yield 1;
+    yield 2;
+    yield 3;
 };
 
 [...myIterable] // [1, 2, 3]
@@ -247,34 +247,34 @@ myIterable[Symbol.iterator] = function* () {
 //symbol.toPrimitive 指向一个方法 该对象被转为原始类型的值时 会调用这个方法 返回该对象对应的原始类型值
 let obj = {
     [Symbol.toPrimitive](hint) {
-      switch (hint) {
-        case 'number':
-          return 123;
-        case 'string':
-          return 'str';
-        case 'default':
-          return 'default';
-        default:
-          throw new Error();
-       }
-     }
-  };
-  
-  2 * obj // 246
-  3 + obj // '3default'
-  obj == 'default' // true
-  String(obj) // 'str'
+        switch (hint) {
+            case 'number':
+                return 123;
+            case 'string':
+                return 'str';
+            case 'default':
+                return 'default';
+            default:
+                throw new Error();
+        }
+    }
+};
 
-  //Symbol.toStringTag 指向一个方法 在该对象上面调用Object.prototype.toString方法时 如果这个属性存在 它的返回值就会出现在toString方法返回的字符串中 表示对象的类型 
-  // 例一
-({[Symbol.toStringTag]: 'Foo'}.toString())
+2 * obj // 246
+3 + obj // '3default'
+obj == 'default' // true
+String(obj) // 'str'
+
+    //Symbol.toStringTag 指向一个方法 在该对象上面调用Object.prototype.toString方法时 如果这个属性存在 它的返回值就会出现在toString方法返回的字符串中 表示对象的类型 
+    // 例一
+    ({ [Symbol.toStringTag]: 'Foo' }.toString())
 // "[object Foo]"
 
 // 例二
 class Collection {
-  get [Symbol.toStringTag]() {
-    return 'xxx';
-  }
+    get [Symbol.toStringTag]() {
+        return 'xxx';
+    }
 }
 let x = new Collection();
 Object.prototype.toString.call(x) // "[object xxx]"
@@ -293,3 +293,83 @@ Array.prototype[Symbol.unscopables]
 
 Object.keys(Array.prototype[Symbol.unscopables])
 // ['copyWithin', 'entries', 'fill', 'find', 'findIndex', 'includes', 'keys']
+
+//test
+//作为属性名的Symbol
+let mySymbol = Symbol();
+
+// 第一种写法
+let a = {};
+a[mySymbol] = 'Hello!';
+
+// 第二种写法
+let a = {
+    [mySymbol]: 'Hello!'
+};
+
+// 第三种写法
+let a = {};
+Object.defineProperty(a, mySymbol, { value: 'Hello!' });
+
+// 以上写法都得到同样结果
+a[mySymbol] // "Hello!"
+
+//Symbol值作为对象属性名时 不能用点运算符
+//在对象内部 使用Symbol值定义属性时 Symbol值必须放在方括号中
+let s = Symbol();
+
+let obj = {
+    [s]: function (arg) { ... }
+};
+
+obj[s](123);
+
+//Symbol 类型还可以用于定义一组常量，保证这组常量的值都是不相等的。
+const log = {};
+
+log.levels = {
+    DEBUG: Symbol('debug'),
+    INFO: Symbol('info'),
+    WARN: Symbol('warn')
+};
+console.log(log.levels.DEBUG, 'debug message');
+console.log(log.levels.INFO, 'info message');
+
+//魔术字符串
+function getArea(shape, options) {
+    let area = 0;
+
+    switch (shape) {
+        case 'Triangle': // 魔术字符串
+            area = .5 * options.width * options.height;
+            break;
+        /* ... more code ... */
+    }
+
+    return area;
+}
+
+getArea('Triangle', { width: 100, height: 100 }); // 魔术字符串
+//Triangle在这里就是一个魔术字符串
+//消除魔法字符串的方法 就是把它写成字符串
+const shapeType = {
+    triangle: 'Triangle'
+};
+
+function getArea(shape, options) {
+    let area = 0;
+    switch (shape) {
+        case shapeType.triangle:
+            area = .5 * options.width * options.height;
+            break;
+    }
+    return area;
+}
+
+getArea(shapeType.triangle, { width: 100, height: 100 });
+
+
+
+
+
+
