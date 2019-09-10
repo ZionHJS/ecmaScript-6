@@ -766,7 +766,22 @@ function* F() {
 new F()
 // TypeError: F is not a constructor
 
-
+//将一个Generator改成构造函数的方法 
+function* gen() {
+    this.a = 1;
+    yield this.b = 2;
+    yield this.c = 3;
+}
+function F() {
+    return gen.call(gen.prototype);   //生成一个实例对象
+}
+var f = new F();  //利用新生成的实例对象再new
+f.next();  // Object {value: 2, done: false}
+f.next();  // Object {value: 3, done: false}
+f.next();  // Object {value: undefined, done: true}
+f.a // 1
+f.b // 2
+f.c // 3
 
 
 
