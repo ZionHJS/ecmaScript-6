@@ -702,12 +702,70 @@ var g = gen();
 g.next();   //hello
 
 try {
-    throw new Error();  
+    throw new Error();
 } catch (e) {
     g.next();   //world
 }
 // hello
 // world
+
+//使用yield*表达式 来在一个Generator中执行另一个Generator函数 
+function* foo() {
+    yield 'a';
+    yield 'b';
+}
+function* bar() {
+    yield 'x';
+    yield* foo();
+    yield 'y';
+}
+// 等同于
+function* bar() {
+    yield 'x';
+    yield 'a';
+    yield 'b';
+    yield 'y';
+}
+
+//从语法角度来看 如果yield表达式后面是一个遍历器对象 需要在yield表达式后面加上星号 表明它返回的是一个遍历器对象 yield*
+
+//如果一个对象的属性是Generator函数 可以写成下面的形式
+let obj = {
+    * myGeneratorMethod() {
+···
+    }
+};
+
+//Generator函数的this
+//Generator函数总是返回一个遍历器 这个遍历器是Generator函数的实例 也继承了Generator函数的prototype对象上的方法
+function* g() { }
+
+g.prototype.hello = function () {
+    return 'hi!';
+};
+
+let obj = g();
+
+obj instanceof g // true   obj是g的实例吗？
+obj.hello() // 'hi!'
+
+//Generator函数g在this对象上面添加了一个属性a 但是obj对象拿不到这个属性
+function* g() {
+    this.a = 11;
+}
+
+let obj = g();
+obj.next();
+obj.a // undefined
+//Generator 也不能当作构造函数来使用
+function* F() {
+    yield this.x = 2;
+    yield this.y = 3;
+}
+
+new F()
+// TypeError: F is not a constructor
+
 
 
 
