@@ -609,13 +609,107 @@ myIterable[Symbol.iterator] = function* () {
 //这就是用Generator给普通对象添加Iterator接口的方法
 //Generator 函数执行后，返回一个遍历器对象。该对象本身也具有Symbol.iterator属性，执行后返回自身。
 function* gen() {
-// some code
+    // some code
 }
 
 var g = gen();
 
 g[Symbol.iterator]() === g  //g[Symbol.iterator]()执行后返回自己
 // true
+
+//for...of循环可以自动遍历 Generator 函数时生成的Iterator对象，且此时不再需要调用next方法。
+function* foo() {
+    yield 1;
+    yield 2;
+    yield 3;
+    yield 4;
+    yield 5;
+    return 6;
+    yield 7;
+    yield 9;
+}
+for (let v of foo()) {
+    console.log(v);
+}
+
+//Generator.prototype.throw() Generator函数返回的遍历器对象 都有一个throw方法 可以在函数体外抛出错误 然后在Generator函数体内捕获
+
+//注意，不要混淆遍历器对象的throw方法和全局的throw命令。
+// 上面代码的错误，是用遍历器对象的throw方法抛出的，而不是用throw命令抛出的。后者只能被函数体外的catch语句捕获
+var g = function* () {
+    while (true) {
+        try {
+            yield;
+        } catch (e) {
+            if (e != 'a') throw e;
+            console.log('内部捕获', e);
+        }
+    }
+};
+
+var i = g();
+i.next();
+
+try {
+    throw new Error('a');
+    throw new Error('b');
+} catch (e) {
+    console.log('外部捕获', e);
+}
+// 外部捕获 [Error: a]
+// 上面代码之所以只捕获了a，是因为函数体外的catch语句块，捕获了抛出的a错误以后，就不会再继续try代码块里面剩余的语句了。
+
+//如果Generator函数内部和外部都没有部署try...catch代码块 那么程序将会报错 直接中断执行
+
+//throw方法抛出的错误要被内部捕获 前提是至少执行过一次next方法 
+function* gen() {
+    try {
+        yield 1;
+    } catch (e) {
+        console.log('内部捕获');
+    }
+}
+
+var g = gen();
+g.throw(1);
+// Uncaught 1
+
+//第一次执行next方法 等于启动执行Generator函数的内部代码 
+
+//Generator.throw方法被捕获以后 相当于自动执行了一次next方法 
+var gen = function* gen() {
+    try {
+        yield console.log('a');
+    } catch (e) {
+        console.log('ignore this');
+    }
+    yield console.log('b');
+    yield console.log('c');
+}
+
+var g = gen();
+g.next() // a
+g.throw() // ignore this; b
+g.next() // c
+
+//throw命令与 .throw方法是无关的 两者互不影响
+var gen = function* gen() {
+    yield console.log('hello');
+    yield console.log('world');
+}
+
+var g = gen();
+g.next();   //hello
+
+try {
+    throw new Error();  
+} catch (e) {
+    g.next();   //world
+}
+// hello
+// world
+
+
 
 
 
