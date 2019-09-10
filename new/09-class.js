@@ -497,3 +497,65 @@ Point.prototype = {
     toString() { },
     toValue() { },
 };
+
+//constructor方法 类的默认方法 new创建实例 会自动调用该方法 如果没有显示定义 一个空的constructor方法会被自动添加
+class Point {
+}
+
+// 等同于
+class Point {
+    constructor() { }
+}
+
+//constructor方法默认返回实例对象(this) 完全可以指定返回另外一个对象
+class Foo {
+    constructor() {
+        return Object.create(null);
+    }
+}
+
+new Foo() instanceof Foo   //实例对象不是Foo类的实现
+// false
+//跟普通构造函数的区别是 类必须使用new才可以执行
+
+//类的实例对象
+// 与 ES5 一样，实例的属性除非显式定义在其本身（即定义在this对象上），否则都是定义在原型上（即定义在class上）
+//定义类
+class Point {
+    constructor(x, y) {
+        this.x = x;  //带了this的变量 会把属性赋值到实例上
+        this.y = y;  //带了this的变量 会把属性赋值到实例上
+    }
+    toString() {  
+        return '(' + this.x + ', ' + this.y + ')';
+    }
+}
+
+var point = new Point(2, 3);
+
+point.toString() // (2, 3)
+
+point.hasOwnProperty('x') // true
+point.hasOwnProperty('y') // true
+point.hasOwnProperty('toString') // false  
+point.__proto__.hasOwnProperty('toString') // true   实例的属性会保存在原型上
+
+//类的所有实例 共享一个原型对象
+var p1 = new Point(2,3);
+var p2 = new Point(3,2);
+
+p1.__proto__ === p2.__proto__
+//true
+//可以通过实例的__proto__属性为 类 添加方法
+
+//类不存在变量提升
+new Foo(); // ReferenceError
+class Foo {}
+
+//私有方法和私有属性
+
+//类方法内部的this的指向类的实例 
+
+
+
+
