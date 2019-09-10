@@ -1,13 +1,13 @@
 //ES6允许直接写入变量和函数 作为对象的属性和方法 
 const foo = 'bar';
-const baz = {foo};
+const baz = { foo };
 baz //{foo:'bar'}
 //等同于
-const baz = {foo:foo};
+const baz = { foo: foo };
 
 //方法简写
 const o = {
-    method: function(){
+    method: function () {
         return 'Hello!';
     }
 };
@@ -16,7 +16,7 @@ let birth = '2000/01/01';
 const Person = {
     name: 'david',
     birth,
-    hello(){
+    hello() {
         console.log('my name is', this.name);
     }
 };
@@ -28,15 +28,15 @@ obj['a' + 'bc'] = 123;
 //ES6允许字面量的方式定义对象(使用大括号)
 let proKey = 'foo';
 let obj = {
-    [propKey]:true,
+    [propKey]: true,
     ['a' + 'bc']: 123
 };
 //另一个例子
 let lastWord = 'last word';
 
 const a = {
-    'first word':'hello',
-    [lastWord]:'world'
+    'first word': 'hello',
+    [lastWord]: 'world'
 };
 a['first word'] //hello
 a[lastWord]  //"world"
@@ -44,19 +44,19 @@ a['last word'] //"world"
 
 //表达式还可以用于定义方法名
 let obj = {
-    ['h' + 'ellp'](){
+    ['h' + 'ellp']() {
         return 'h1';
     }
 };
 obj.hello()  //hi
 
 //属性表达式 如果是一个对象 默认情况下会自动将对象转为字符串[object, Object] 
-const keyA = {a:1};
-const keyB = {b:2};
+const keyA = { a: 1 };
+const keyB = { b: 2 };
 
 const myObject = {
-    [keyA]:'valueA',
-    [keyB]:'valueB'
+    [keyA]: 'valueA',
+    [keyB]: 'valueB'
 };
 myObject   //Object{[object Object :"valueB"}
 //这里为什么只有一个 valueB呢？因为[keyA]和[keyB]返回的都是[object Object], 而后者会把前者覆盖掉  而最后myObject对象只有一个object属性
@@ -64,7 +64,7 @@ myObject   //Object{[object Object :"valueB"}
 //方法的name属性
 //函数的name属性返回函数名 对象方法也是函数 因此也有name属性
 const person = {
-    sayName(){
+    sayName() {
         console.log('hello!');
     },
 };
@@ -72,11 +72,11 @@ person.sayName.name   //"sayName"
 
 //如果对象的方法使用了取值函数getter和存值函数setter 则name属性不是在该方法上面 而是该方法的属性描述对象的get set属性上面 返回值是方法名加上get和set
 const obj = {
-    get foo(){},
-    set foo(x){}
+    get foo() { },
+    set foo(x) { }
 },
 
-obj.foo.name
+    obj.foo.name
 // TypeError: Cannot read property 'name' of undefined
 
 const descriptor = Object.getOwnPropertyDescriptor(obj, 'foo');
@@ -84,10 +84,10 @@ const descriptor = Object.getOwnPropertyDescriptor(obj, 'foo');
 descriptor.get.name   //"get foo"
 descriptor.set.name   //"set foo"
 
-//有两种特殊情况 bind方法创造的函数 name属性返回bound加上原函数的名字 Functrion构造函数创造的函数 name属性返回anonymous
-(new Function()).name   //anonymous
+    //有两种特殊情况 bind方法创造的函数 name属性返回bound加上原函数的名字 Functrion构造函数创造的函数 name属性返回anonymous
+    (new Function()).name   //anonymous
 
-var doSomething = function(){
+var doSomething = function () {
     //...
 };
 doSomething.bind()().name   //'bound doSomething'
@@ -96,14 +96,14 @@ doSomething.bind()().name   //'bound doSomething'
 const key1 = Symbol('description');
 const key2 = Symbol();
 let obj = {
-    [key1](){},
-    [key2](){},
+    [key1]() { },
+    [key2]() { },
 };
 obj[key1].name   //"[description]"
 obj[key2].name  //""
 
 //Object.is() 用来比较两个值是否严格相等 与严格比较运算符(===)的行为基本一直
-Object.is('foo','foo');   //true
+Object.is('foo', 'foo');   //true
 Object.is({}, {});  //false
 //不同之处只有两个 +0不等于-0  NaN等于自身
 +0 === -0 //true
@@ -114,17 +114,17 @@ Object.is(NaN, NaN)   //true
 
 // Object.assign()
 // Object.assign() 方法用于对象的合并 将源对象(source)的所有可枚举属性 复制到目标对象(target)
-const target = { a:1 };
-const source1 = { b:2 };
-const source2 = { c:3 };
+const target = { a: 1 };
+const source1 = { b: 2 };
+const source2 = { c: 3 };
 
 Object.assign(target, source1, source2);
 target //{a:1, b:2, c:3}
 //Object.assign方法的第一个参数是目标对象 后面的参数都是源对象
 //如果目标对象与源对象有同名属性 或多个源对象有同名属性 则后面的属性会覆盖前面的属性
-const target = { a:1, b:1};
-const source1 = { b:2, c:2};
-const source2 = { c:3};
+const target = { a: 1, b: 1 };
+const source1 = { b: 2, c: 2 };
+const source2 = { c: 3 };
 
 Object.assign(target, source1, source2);
 target //{a:1, b:2, c:3}
@@ -136,7 +136,7 @@ typeof Object.assign(2)  //"object"
 Object.assign(undefined)  //TypeError: Cannot convert undefined or null to object
 Object.assign(null)  //TypeError: Cannot convert undefined or null to object
 //如果非对象参数出现在源对象的位置 那么处理规则有所不同 首先这些参数都会转成对象 如果无法转换 则跳过 这意味着 undefined和null 不在首参数 就不会报错
-let obj = {a:1};
+let obj = { a: 1 };
 Object.assign(obj, undefined) === obj   //true
 Object.assign(obj, null) === obj  //true
 
@@ -145,24 +145,24 @@ const v1 = 'abc';
 const v2 = true;
 const v3 = 10;
 
-const obj = Object.assign({}, v1 ,v2 ,v3);  //v2 和 v3不会产生效果 因为它们不是字符串
+const obj = Object.assign({}, v1, v2, v3);  //v2 和 v3不会产生效果 因为它们不是字符串
 console.log(obj);  //{'0':'a', '1':'b', '2':'c'}
 
 Object('abc'); // => {0: "a", 1: "b", 2: "c", length: 3, [[PrimitiveValue]]: "abc"}  //原因在此
 
 //Object.assign拷贝的属性是有限制的 只拷贝源对象的自身属性,也不拷贝不可枚举的属性
-Object.assign({b:'c'}, Object.defineProperty({}, 'invisible',{
-    enumerable:false,
-    value:'hello'
+Object.assign({ b: 'c' }, Object.defineProperty({}, 'invisible', {
+    enumerable: false,
+    value: 'hello'
 }))
 //{b:'c'}  //因为enumerable:false
 
 //属性名为Symbol值的属性 也会被Object.assign拷贝s
-Object.assign({a:'b'},{[Symbol('c')]:d})
+Object.assign({ a: 'b' }, { [Symbol('c')]: d })
 //{a:'b', Symbol(c):'d'}
 
 //Object.assign()是浅拷贝 如果源对象的某个属性是对象那么目标对象得到的是这个对象的引用
-const obj1 = {a:{b:1}};
+const obj1 = { a: { b: 1 } };
 const obj2 = Object.assign({}, obj1);
 
 obj1.a.b = 2;
@@ -170,18 +170,18 @@ obj2.a.b  //2
 
 //同名属性的替换
 //对于这种嵌套对象 一旦遇到同名属性 Object.assign的处理方法是替换 而不是添加
-const target = {a:{b:'c', d:'e'}}
-const source = {a:{b:'hello'}}
+const target = { a: { b: 'c', d: 'e' } }
+const source = { a: { b: 'hello' } }
 Object.assign(target, source)  //{a:{b:'hello}}  //d:'e'就被替换掉了
 
 //数组的处理
 //Object.assign可以用来处理数组 但是会把数组视为对象
-Object.assign([1,2,3],[4,5])  //[4,5,3]  //被按index顺序覆盖掉了
+Object.assign([1, 2, 3], [4, 5])  //[4,5,3]  //被按index顺序覆盖掉了
 
 //取值函数的处理
 // Object.assign只能进行值的复制 如果复制的值是一个取值函数 那么将求值后再复制
 const source = {
-    get foo(){return 1}
+    get foo() { return 1 }
 };
 const target = {};
 
@@ -190,30 +190,30 @@ Object.assign(target, source)   //{foo:1}
 //常见的应用
 //1.为对象添加属性
 const Point{
-    constructor(x,y){
-        Object.assign(this, {x,y});
+    constructor(x, y){
+        Object.assign(this, { x, y });
     }
 }
 //2.为对象添加方法
-Object.assign(SomeClass.prototype,{
-    someMethod(arg1, arg2){
+Object.assign(SomeClass.prototype, {
+    someMethod(arg1, arg2) {
         //...
     },
-    anotherMethod(){
+    anotherMethod() {
         //...
     }
 });
 
 //等同于下面的写法
-SomeClass.prototype.someMethod = function (arg1, arg2){
+SomeClass.prototype.someMethod = function (arg1, arg2) {
     //...
 };
-SomeClsss.prototype.anotherMethod = function(){
+SomeClsss.prototype.anotherMethod = function () {
     //...
 };
 
 //克隆对象
-function clone(origin){
+function clone(origin) {
     return Object.assign({}, origin);
 }
 
@@ -223,10 +223,10 @@ const merge = (target, ...source) => Object.assign(target, ...source);
 
 //为属性指定默认值
 const DEFAULTS = {
-    logLevel:0, 
-    outputFormat:'html'
+    logLevel: 0,
+    outputFormat: 'html'
 };
-function processContent(options){
+function processContent(options) {
     options = Object.assign({}, DEFAULTS, options);
     console.log(options);
 }
@@ -235,7 +235,7 @@ function processContent(options){
 //属性的可枚举性和遍历
 //可枚举性
 //对象的每个属性都有一个描述对象(Descriptor), 用来控制该属性的行为 Object.getOwnPropertyDescriptor方法可以获取该属性的描述对象
-let obj = {foo:123};
+let obj = { foo: 123 };
 Object.getOwnPropertyDescriptor(obj, 'foo')
 // {value: 123, writable: true, enumerable: true, configurable: true}
 //有四个操作会忽略enumerable为false的属性
@@ -267,8 +267,8 @@ Object.getOwnPropertyDescriptor(obj, 'foo')
 //Object.getOwnPropertyDescriptors()
 //次方法返回某个对象属性的描述对象(descriptors) 
 const obj = {
-    foo:123,
-    get bar(){return 'abc'}
+    foo: 123,
+    get bar() { return 'abc' }
 };
 
 Object.getOwnPropertyDescriptors(obj);
@@ -276,9 +276,9 @@ Object.getOwnPropertyDescriptors(obj);
 //上述方法返回一个对象 所有原对象的属性名都是该对象的属性名 对应的属性值就是该属性的描述对象
 
 //该方法的函数实现
-function getOwnPropertyDescriptor(obj){
+function getOwnPropertyDescriptor(obj) {
     const result = {};
-    for(let key of Reflect.ownKeys(obj)){
+    for (let key of Reflect.ownKeys(obj)) {
         result[key] = Object.getOwnPropertyDescriptor(obj, key);
     }
     return result;
@@ -287,50 +287,50 @@ function getOwnPropertyDescriptor(obj){
 //__proto__属性 Object.setPrototypeOf(), Object.getPrototypeOf()
 //__proto__属性(前后两个下划线) 用来读取或者设置当前对象的prototype对象
 var obj = Object.create(someOtherObj);
-obj.method = function(){...};
+obj.method = function () {... };
 //__proto__属性(前后两个下划线) 前后的下划线 说明它本质上是一个内部属性 而不是正式对外的API 建议不要直接使用该属性 
 // 而是通过Object.setPrototypeOf() Object.getPrototypeOf() Object.create() 代替
 //实质上 __proto__ 调用的是Object.prototype.__proto__  具体实现如下
-Object.defineProperty(Object.prototype, '__proto__',{
-    get(){
+Object.defineProperty(Object.prototype, '__proto__', {
+    get() {
         let _thisObj = Object(this);
         return Object.getPrototypeOf(_thisObj);
     },
-    set(proto){
-        if(this === undefined || this === nul){
+    set(proto) {
+        if (this === undefined || this === nul) {
             throw new TypeError();
         }
-        if(!isObject(this)){ 
+        if (!isObject(this)) {
             return undefined;
         }
-        if(!isObject(proto)){
+        if (!isObject(proto)) {
             return undefined;
         }
         let status = Reflect.setPrototypeOf(this, proto);
-        if(!status){
+        if (!status) {
             throw new TypeError();
         }
     },
 });
-function isObject(value){
+function isObject(value) {
     return Object(value) === value;
 }
 
 //如果一个对象本身部署了__proto__属性 该属性的值就是对象的原型
-Object.getPrototypeOf({__proto__:null});   //null
+Object.getPrototypeOf({ __proto__: null });   //null
 
 //Object.setPrototypeOf() 方法作用与 __proto__相同,用来设置一个对象的prototype对象 返回参数对象本身
 Object.setPrototypeOf(object, prototype);
 const o = Object.setPrototypeOf({}, null);
 
 //该方法等同于下面的函数
-function(obj, proto){
+function(obj, proto) {
     obj.__proto__ = proto;
     return obj;
 }
 //具体的例子
 let proto = {};
-let obj = { x:10 };
+let obj = { x: 10 };
 Object.setPrototypeOf(obj, proto);
 proto.y = 20;
 proto.z = 40;
@@ -346,7 +346,7 @@ Object.setPrototypeOf(true, {}) === true  //true
 //由于undefined和null无法转为对象 所以如果第一个参数是undefined和null 就报错
 
 //Object.getPrototypeOf(obj); 该方法与之前的set方法配套 用于读取一个对象的原型对象
-function Rectangle(){
+function Rectangle() {
     //...
 }
 const rec = new Rectangle();
@@ -372,8 +372,8 @@ const proto = {
 };
 
 const obj = {
-    foo:'world',
-    find(){
+    foo: 'world',
+    find() {
         return super.foo;  //super指当前对象的原型对象
     }
 };
@@ -382,27 +382,27 @@ obj.find()   //'hello'
 
 //super关键字表示原型对象时 只能用在对象的方法之中 用在其他地方会报错
 const obj = {
-    foo:super.foo  //SyntaxError: 'super' keyword unexpected here
+    foo: super.foo  //SyntaxError: 'super' keyword unexpected here
 }
 const obj = {
     foo: () => super.foo   //SyntaxError: 'super' keyword unexpected here   //这里还是属性之中 并不在方法之中 
 }
 const obj = {
-    foo: function(){   
+    foo: function () {
         return super.foo  //SyntaxError: 'super' keyword unexpected here   //这里还是属性之中 并不在方法之中
     }
 }
 
 //javascript引擎内部 super.foo 等同于Object.getPrototypeOf(this).foo(属性) 或 Object.getPrototypeOf(this).foo.call(this) 方法
 const proto = {
-    x:'hello',
-    foo(){
+    x: 'hello',
+    foo() {
         console.log(this.x);
     },
 };
 const obj = {
-    x:'world',
-    foo(){
+    x: 'world',
+    foo() {
         super.foo();
     }
 }
@@ -412,11 +412,11 @@ obj.foo(); //'world'
 
 //Object.keys()  Object.values()  Object.entries()
 //Object.keys()  返回一个数组 成员是参数对象自身的所有可遍历属性的键名
-var obj = {foo:'bar', baz:42};
+var obj = { foo: 'bar', baz: 42 };
 Object.keys(obj)  //['foo', 'baz']
 
 //Object.values() 方法返回一个数组 
-const obj = {foo:'bar', baz:42};
+const obj = { foo: 'bar', baz: 42 };
 Object.values(obj)  //['bar', 42]
 //如果参数不是对象是一个字符串 那么就会把字符串转为对象 然后依次输出每个字符
 
@@ -424,54 +424,117 @@ Object.values(obj)  //['bar', 42]
 //如果是数组或者Boolean 那么就会返回一个空数组
 
 //Object.entries() 方法返回一个数组 成员是参数对象自身的所有可变连的键值对
-const obj = {foo:'bar', baz:42}
+const obj = { foo: 'bar', baz: 42 }
 Object.entries(obj)   //[['foo':'bar],['baz':42]]
 //这个会忽略Symbol值
 
 //对象的扩展运算符 
 //对象的解构复制用于从一个对象取值 相当于将目标对象自身的所有可遍历的enumerable 尚未被读取的属性 分配到指定的对象上面 所有键和它们的值 都会拷贝到新对象上面
-let {x,y,...z} = {x:1, y:2, a:3, b:4};   //...z会直接被拷贝键值对 形成一个新对象
+let { x, y, ...z } = { x: 1, y: 2, a: 3, b: 4 };   //...z会直接被拷贝键值对 形成一个新对象
 //a 1, y 2, z {a:3, b:4}
 //同样 如果null 和 undefined都会报错
 //同样 解构赋值必须放在最后一位参数 不然就会报错
 //同样 解构赋值 是浅拷贝 原来的对象 属性 改变 那么新对象里面的值就会随着改变
 
 //扩展运算符的解构赋值 不能赋值继承自原型对象的属性
-let o1 = { a:1 };
-let o2 = { b:2 };
+let o1 = { a: 1 };
+let o2 = { b: 2 };
 o2.__proto__ = o1;
-let {...o3} = 02;
+let { ...o3 } = 02;
 o3   //{b:2}
 o3.a   //undefined
 //上面代码 o3并无法继承o2的原型
 
 //扩展运算符  
 //对象的扩展运算符 用于取出参数对象的所有可遍历属性 拷贝到当前对象之中
-let o1 = { c:1 };
-let z = {a:3, b:4};
+let o1 = { c: 1 };
+let z = { a: 3, b: 4 };
 z.__proto__ = o1;
-let n = {...z};  //n => {a:3, b:4}
+let n = { ...z };  //n => {a:3, b:4}
 n.c  //undefined  验证了无法继承原型
 
 //用户自定义的属性 放在扩展运算符后面 则扩展运算符内部的同名属性会被覆盖掉
-let aWithOverrrides = {...a, x:1, y:2};
+let aWithOverrrides = { ...a, x: 1, y: 2 };
 //等同于
-let aWithOverrrides = {...a, {x:1, y:2}};
+let aWithOverrrides = { ...a, { x:1, y:2}};
 //等同于
-let x=1, y=2,aWithOverrrides = {...a, x, y};
+let x = 1, y = 2, aWithOverrrides = { ...a, x, y };
 //等同于
 let aWithOverrides = Object.assign({}, a, { x: 1, y: 2 });
 //上面代码中a对象的x属性和y属性 拷贝到新对象后会被覆盖掉
 
 //与数组的扩展运算符一样 对象的扩展运算符后面可以跟表达式
 const obj = {
-    ...a(x>1 ? {a:1} : {}),
-    b:2,
+    ...a(x > 1 ? { a: 1 } : {}),
+    b: 2,
 };
 
 //如果扩展运算符后面是null 和 undefined 不会报错 也没有任何效果
-let emptyObject = {...null, ...undefined};  //没有报错 也没发生任何改变
+let emptyObject = { ...null, ...undefined };  //没有报错 也没发生任何改变
 
 
 
+//test
+var obj = {}
+obj['a' + 'bc'] = 123;
+obj['abc'] === 123;   //true
 
+let lastWord = 'last word';
+
+const a = {
+    'first word': 'hello',
+    [lastWord]: 'world'
+};
+
+a['first word'] // "hello"
+a[lastWord] // "world"
+a['last word'] // "world
+a[['last']]  //undefined
+
+const keyA = { a: 1 };
+const keyB = { b: 2 };
+
+const myObject = {
+    [keyA]: 'valueA',
+    [keyB]: 'valueB'
+};
+
+myObject // Object {[object Object]: "valueB"}  这里B把A覆盖掉了
+
+//对象的方法也是函数 也具有方法名
+
+//判断对象是否相等 ==相等运算符 会自动转化为数据类型 ===严格相等运算符 NaN === NaN //false +0 === -0 //true
+//引入Object.is() 只要值相等就相等
+
+//Object.assign() 这个东西是个浅拷贝
+const target = { a: 1 };
+
+const source1 = { b: 2 };
+const source2 = { c: 3 };
+Object.assign(targe, source1, source2);
+
+//对象的每个属性都有一个 Object.getOwnPropertyDescriptor方法 来获得该属性的描述对象
+let obj = { foo: 123 };
+Object.getOwnPropertyDescriptor(obj, 'foo')
+//  {
+//    value: 123,
+//    writable: true,
+//    enumerable: true,
+//    configurable: true
+//  }
+
+//这里enumerable属性 称为'可枚举性' 如果该属性为false 就表示某些操作会忽略当前属性
+//属性的遍历
+// 1.for...in
+// for...in循环遍历对象自身的和继承的可枚举属性（不含 Symbol 属性）。
+// 2.Object.keys(obj)
+// Object.keys返回一个数组，包括对象自身的（不含继承的）所有可枚举属性（不含 Symbol 属性）的键名。
+// 3.Object.getOwnPropertyNames(obj) 返回一个数组 包含对象自身的所有属性(不含Symbol属性 但是包括不可枚举属性)的键名
+// 4.Object.getOwnPropertySymbols  返回一个数组 包含对象自身所有Symbol属性键名
+// 5.Reflect.ownKeys(obj) 返回一个数组 包含对象自身的所有键名 不管键名是Symbol或字符串 也不管是否可枚举
+
+//以上5种方法遍历对象的键名 都遵守同样的属性遍历的次序规则
+//首先遍历所有数值键 按照数值升序排列 
+//其次遍历所有字符串键 按照加入时间升序排列 
+//最后遍历所有Symbol键 按照加入时间升序排列
+Reflect.ownKeys({[Symbol()]:0, b:0, 10:0, 2:0, a:0})
