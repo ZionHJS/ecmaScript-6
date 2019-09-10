@@ -578,8 +578,48 @@ console.log(unboundGetX()); // The function gets invoked at the global scope
 
 var boundGetX = unboundGetX.bind(module);
 console.log(boundGetX());
-  // expected output: 42
+// expected output: 42
 
 //   在 javascript 中，call 和 apply 都是为了改变某个函数运行时的上下文（context）而存在的，换句话说，就是为了改变函数体内部 this 的指向。
 
-  
+//TEST
+//yield表达式如果放在另一个表达式中 必须放在圆括号里
+function* demo() {
+    console.log('Hello' + yield); // SyntaxError
+    console.log('Hello' + yield 123); // SyntaxError
+
+    console.log('Hello' + (yield)); // OK
+    console.log('Hello' + (yield 123)); // OK
+}
+//yield表达式 用作函数参数或放在赋值表达式右边 可以不加括号
+function* demo() {
+    foo(yield 'a', yield 'b'); // OK
+    let input = yield; // OK
+}
+
+//Generator函数就是遍历器生成函数 因此可以把Generator赋值给对象的Symbol.iterator属性 从而使属性具有Iterator接口
+var myIterable = {};
+myIterable[Symbol.iterator] = function* () {
+    yield 1;
+    yield 2;
+    yield 3;
+};
+
+[...myIterable] // [1, 2, 3]
+//这就是用Generator给普通对象添加Iterator接口的方法
+//Generator 函数执行后，返回一个遍历器对象。该对象本身也具有Symbol.iterator属性，执行后返回自身。
+function* gen() {
+// some code
+}
+
+var g = gen();
+
+g[Symbol.iterator]() === g  //g[Symbol.iterator]()执行后返回自己
+// true
+
+
+
+
+
+
+
