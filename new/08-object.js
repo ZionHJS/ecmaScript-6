@@ -537,4 +537,33 @@ Object.getOwnPropertyDescriptor(obj, 'foo')
 //首先遍历所有数值键 按照数值升序排列 
 //其次遍历所有字符串键 按照加入时间升序排列 
 //最后遍历所有Symbol键 按照加入时间升序排列
-Reflect.ownKeys({[Symbol()]:0, b:0, 10:0, 2:0, a:0})
+Reflect.ownKeys({ [Symbol()]: 0, b: 0, 10: 0, 2: 0, a: 0 })
+
+//浅拷贝对象属性的逻辑可以写成一个函数
+const shallowMerge = (target, source) => Object.defineProperties(
+    target,
+    Object.getOwnPropertyDescriptors(source)
+);
+
+//__proto__ 用来获取或设置当前对象的prototype对象  这是一个浏览器部署的属性
+//这个属性只有在浏览器的情况下才可以使用 在别的环境中使用Object.setPropertyOf()写操作  Object.getPrototypeOf()读操作  Object.prototype.create()生成操作
+//事实上__proto__ 调用的是Object.prototype.__proto__
+ 
+Object.setPrototypeOf(object, prototype)
+//效果等同于
+function(obj, proto){
+    obj.__proto__ = proto;
+    return obj;
+}
+//这是一个浅拷贝
+let proto = {};
+let obj = { x: 10 };
+Object.setPrototypeOf(obj, proto);
+
+proto.y = 20;
+proto.z = 40;
+
+obj.x // 10
+obj.y // 20
+obj.z // 40
+
