@@ -567,3 +567,22 @@ obj.x // 10
 obj.y // 20
 obj.z // 40
 
+
+//super指向当前对象的原型对象 对应this
+//super表示原型对象时 只能用在对象的方法之中 用在其他地方都会报错
+
+//函数和方法,属性的区别
+object{
+    foo:super.foo;   //报错 不是方法 是属性 注意这里的属性和函数的区别
+    foo:function(){
+        return super.foo; //报错 不是方法 是函数
+    }
+    function foo(){
+        return super.foo; //报错 不是方法 是函数
+    }
+    foo(){
+        return super.foo  //正确
+    }
+}
+
+//super.foo 等同于 Object.getPrototypeOf(this).foo 或 Obejct.getPrototypeOf(this).foo.call(this)
